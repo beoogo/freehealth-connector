@@ -19,7 +19,7 @@
 package org.taktik.freehealth.middleware.dto.efact
 
 import org.taktik.freehealth.middleware.domain.common.Patient
-import java.util.LinkedList
+import java.util.*
 
 class Invoice {
     var patient: Patient? = null
@@ -37,6 +37,10 @@ class Invoice {
     var relatedBatchSendNumber: Long? = null
     var relatedBatchYearMonth: Long? = null
     var startOfCoveragePeriod: Long? = null //yyyyMMdd
+    var admissionStartDate: Long? = null //yyyyMMdd
+    var admissionStartTime: Long? = null //HHmm
+    var admissionEndDate: Long? = null //yyyyMMdd
+    var admissionEndTime: Long? = null //HHmm
 
     var internshipNihii: String? = null
     var gnotionNihii: String? = null

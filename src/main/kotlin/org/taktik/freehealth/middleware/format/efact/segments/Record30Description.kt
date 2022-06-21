@@ -57,7 +57,7 @@ object Record30Description : RecordOrSegmentDescription() {
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "27", "signe + intervention personnelle patient", null, "A", pos, 10)
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "28", "reference de l'etablissement", null, "A", pos, 25)
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "29", "reserve", null, "N", pos, 2)
-            pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "30,31", "signe + montant supplement (partie 1 et 2)", null, "N", pos, 10)
+            pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "30,31", "signe + montant supplement (partie 1 et 2)", null, "A", pos, 10)
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "32", "exception tiers payant", null, "N", pos, 1)
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "33", "code facturation intervention personnelle ou supplement", null, "N", pos, 1)
             pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "34", "reserve", null, "N", pos, 1)
