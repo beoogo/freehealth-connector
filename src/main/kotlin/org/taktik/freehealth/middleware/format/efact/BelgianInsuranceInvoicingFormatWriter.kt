@@ -24,7 +24,18 @@ import org.taktik.freehealth.middleware.dto.common.Gender
 import org.taktik.freehealth.middleware.dto.efact.*
 import org.taktik.freehealth.middleware.format.StringUtils
 import org.taktik.freehealth.middleware.format.WriterSession
-import org.taktik.freehealth.middleware.format.efact.segments.*
+import org.taktik.freehealth.middleware.format.efact.segments.Record10Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record20Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record30Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record50Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record51Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record52Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record80Description
+import org.taktik.freehealth.middleware.format.efact.segments.Record90Description
+import org.taktik.freehealth.middleware.format.efact.segments.Segment200Description
+import org.taktik.freehealth.middleware.format.efact.segments.Segment300Description
+import org.taktik.freehealth.middleware.format.efact.segments.Segment400Record95Description
+import org.taktik.freehealth.middleware.format.efact.segments.Segment500Record96Description
 import org.taktik.freehealth.utils.FuzzyValues
 import java.io.IOException
 import java.io.Writer
@@ -388,7 +399,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0)
         ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber)
         ws.write("17", 0)
-        ws.write("19",(if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
+        ws.write("19", (if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
         ws.write("22", (if (icd.nbDays >= 0) "+" else "-") + nf4.format(abs(icd.nbDays)))
         ws.write("24", 0)
         ws.write("27", 0)

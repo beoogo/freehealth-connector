@@ -30,8 +30,15 @@ import org.taktik.connector.technical.service.sts.security.impl.KeyStoreCredenti
 import org.taktik.connector.technical.utils.ConnectorIOUtils
 import org.taktik.connector.technical.utils.MarshallerHelper
 import org.taktik.freehealth.middleware.dao.User
-import org.taktik.freehealth.middleware.dto.efact.*
 import org.taktik.freehealth.middleware.dto.mycarenet.CommonOutput
+import org.taktik.freehealth.middleware.dto.efact.EfactMessage
+import org.taktik.freehealth.middleware.dto.efact.EfactSendResponse
+import org.taktik.freehealth.middleware.dto.efact.ErrorDetail
+import org.taktik.freehealth.middleware.dto.efact.FlatFileWithMetadata
+import org.taktik.freehealth.middleware.dto.efact.InvoiceItemType
+import org.taktik.freehealth.middleware.dto.efact.InvoicesBatch
+import org.taktik.freehealth.middleware.dto.efact.Record
+import org.taktik.freehealth.middleware.dto.efact.Zone
 import org.taktik.freehealth.middleware.dto.efact.segments.RecordOrSegmentDescription
 import org.taktik.freehealth.middleware.dto.efact.segments.ZoneDescription
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
