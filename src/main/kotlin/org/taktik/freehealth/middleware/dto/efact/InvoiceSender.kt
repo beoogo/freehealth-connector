@@ -36,5 +36,16 @@ class InvoiceSender {
         get() = nihii != null && nihii!!.toString().startsWith("8") && Arrays.asList("111", "110", "100", "101", "001", "010", "011").contains(nihii!!.toString().substring(8))
 
     var isSpecialist: Boolean = false
-        get() = nihii!!.toString().length == 11 && nihii!! % 1000L >= 10
+        get() = nihii != null && nihii!!.toString().length == 11 && nihii!! % 1000L >= 10
+
+    val isRestHome: Boolean
+        get() = nihii != null && nihii!!.toString().length == 11 &&
+            when (Integer.parseInt(nihii!!.toString().substring(0, 3))) {
+                in 730..739 -> true
+                in 740..749 -> true
+                in 750..753 -> true
+                in 755..758 -> true
+                in 760..769 -> true
+                else -> false
+            }
 }

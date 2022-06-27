@@ -25,6 +25,8 @@ package org.taktik.freehealth.middleware.dto.efact
  * To change this template use File | Settings | File Templates.
  */
 class InvoiceItem {
+    var type: InvoiceItemType? = InvoiceItemType.ServiceOrSupply
+
     var dateCode: Long? = null
     var endDateCode: Long? = null
     var codeNomenclature: Long = 0
@@ -35,6 +37,8 @@ class InvoiceItem {
     var insuranceRefDate: Long? = null
 
     var units: Int = 0
+    var nbDays: Int = 0
+    var productLabel: String? = null
 
     var reimbursedAmount: Long = 0
     var patientFee: Long = 0

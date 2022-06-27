@@ -35,6 +35,7 @@ import org.taktik.freehealth.middleware.dto.efact.EfactMessage
 import org.taktik.freehealth.middleware.dto.efact.EfactSendResponse
 import org.taktik.freehealth.middleware.dto.efact.ErrorDetail
 import org.taktik.freehealth.middleware.dto.efact.FlatFileWithMetadata
+import org.taktik.freehealth.middleware.dto.efact.InvoiceItemType
 import org.taktik.freehealth.middleware.dto.efact.InvoicesBatch
 import org.taktik.freehealth.middleware.dto.efact.Record
 import org.taktik.freehealth.middleware.dto.efact.Zone
@@ -156,13 +157,19 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
                 var recordFee = 0L
                 var recordSup = 0L
                 rn =
-                    iv.writeRecordHeader(rn, batch.sender!!, invoice.invoiceNumber!!, invoice.reason!!, invoice.invoiceRef!!, invoice.patient!!, invoice.ioCode!!, invoice.ignorePrescriptionDate, invoice.hospitalisedPatient, invoice.creditNote, invoice.relatedBatchSendNumber, invoice.relatedBatchYearMonth, invoice.relatedInvoiceIoCode, invoice.relatedInvoiceNumber, batch.magneticInvoice, invoice.startOfCoveragePeriod)
+                    iv.writeRecordHeader(rn, batch.sender!!, invoice.invoiceNumber!!, invoice.reason!!, invoice.invoiceRef!!, invoice.patient!!, invoice.ioCode!!, invoice.ignorePrescriptionDate, invoice.hospitalisedPatient, invoice.creditNote, invoice.relatedBatchSendNumber, invoice.relatedBatchYearMonth, invoice.relatedInvoiceIoCode, invoice.relatedInvoiceNumber, batch.magneticInvoice, invoice.startOfCoveragePeriod, invoice.admissionStartDate, invoice.admissionStartTime, invoice.admissionEndDate, invoice.admissionEndTime)
                 recordsCountPerOA[0]++
                 metadata.recordsCount++
                 for (it in invoice.items.sortedWith(compareBy({ it.dateCode }, { it.codeNomenclature }))) {
                     it.gnotionNihii = it.gnotionNihii ?: invoice.gnotionNihii
                     it.internshipNihii = it.internshipNihii ?: invoice.internshipNihii
-                    rn = iv.writeRecordContent(rn, batch.sender!!, batch.invoicingYear, batch.invoicingMonth, invoice.patient!!, invoice.ioCode!!, it)
+
+                    rn = when (it.type) {
+                        InvoiceItemType.MaintenanceDays ->
+                            iv.writeRecordMaintenanceDayContent(rn, batch.sender!!, invoice.patient!!, it, invoice.ioCode!!, batch.magneticInvoice)
+                        else ->
+                            iv.writeRecordContent(rn, batch.sender!!, batch.invoicingYear, batch.invoicingMonth, invoice.patient!!, invoice.ioCode!!, it)
+                    }
 
                     recordsCountPerOA[0]++
                     metadata.recordsCount++
@@ -192,7 +199,7 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
                 }
                 rn =
-                    iv.writeRecordFooter(rn, batch.sender!!, invoice.invoiceNumber!!, invoice.invoiceRef!!, invoice.patient!!, invoice.ioCode!!, recordCodes, recordAmount, recordFee, recordSup, batch.magneticInvoice)
+                    iv.writeRecordFooter(rn, batch.sender!!, invoice.invoiceNumber!!, invoice.invoiceRef!!, invoice.patient!!, invoice.ioCode!!, recordCodes, recordAmount, recordFee, recordSup, batch.magneticInvoice, invoice.admissionStartDate, invoice.admissionStartTime, invoice.admissionEndDate, invoice.admissionEndTime)
                 recordsCountPerOA[0]++
                 metadata.recordsCount++
 
