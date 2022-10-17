@@ -146,6 +146,24 @@ class STSServiceImpl(val keystoresMap: IMap<UUID, ByteArray>, val tokensMap: IMa
                     "urn:be:fgov:certified-namespace:ehealth"
                 )
             )
+            "retirementhome" -> listOf(
+                SAMLAttributeDesignator(
+                    "urn:be:fgov:ehealth:1.0:retirement:nihii-number",
+                    "urn:be:fgov:identification-namespace"
+                ),
+                SAMLAttributeDesignator(
+                    "urn:be:fgov:ehealth:1.0:certificateholder:retirement:nihii-number",
+                    "urn:be:fgov:identification-namespace"
+                ),
+                SAMLAttributeDesignator(
+                    "urn:be:fgov:ehealth:1.0:retirement:nihii-number:recognisedretirement:nihii11",
+                    "urn:be:fgov:certified-namespace:ehealth"
+                ),
+                SAMLAttributeDesignator(
+                    "urn:be:fgov:ehealth:1.0:retirement:nihii-number:recognisedretirement:boolean",
+                    "urn:be:fgov:certified-namespace:ehealth"
+                )
+            )
             "guardpost" -> listOf(
                 SAMLAttributeDesignator(
                     "urn:be:fgov:ehealth:1.0:guardpost:nihii-number",
@@ -385,6 +403,18 @@ class STSServiceImpl(val keystoresMap: IMap<UUID, ByteArray>, val tokensMap: IMa
                 ),
                 SAMLAttribute(
                     "urn:be:fgov:ehealth:1.0:certificateholder:medicalhouse:nihii-number",
+                    "urn:be:fgov:identification-namespace",
+                    nihiiOrSsin
+                )
+            )
+            "retirementhome" -> listOf(
+                SAMLAttribute(
+                    "urn:be:fgov:ehealth:1.0:retirement:nihii-number",
+                    "urn:be:fgov:identification-namespace",
+                    nihiiOrSsin
+                ),
+                SAMLAttribute(
+                    "urn:be:fgov:ehealth:1.0:certificateholder:retirement:nihii-number",
                     "urn:be:fgov:identification-namespace",
                     nihiiOrSsin
                 )

@@ -109,7 +109,7 @@ class GenInsServiceImpl(val stsService: STSService, val mapper: MapperFacade) : 
                 hcpQuality.equals("hospital") ||
                 hcpQuality.equals("groupofnurses") ||
                 hcpQuality.equals("labo") ||
-                hcpQuality.equals("retirement") ||
+                hcpQuality.equals("retirementhome") ||
                 hcpQuality.equals("otdpharmacy") ||
                 hcpQuality.equals("medicalhouse") ||
                 hcpQuality.equals("groupofdoctors") ||
