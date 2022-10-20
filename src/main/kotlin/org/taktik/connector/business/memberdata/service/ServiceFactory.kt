@@ -8,17 +8,23 @@ import org.taktik.connector.technical.service.sts.security.SAMLToken
 import org.taktik.connector.technical.ws.domain.GenericRequest
 import org.taktik.connector.technical.ws.domain.TokenType
 
-import java.util.ArrayList
-
 object ServiceFactory {
-    private val PROP_ENDPOINT_MEMBERDATASYNC = "endpoint.memberdata"
+    private const val PROP_ENDPOINT_MEMBERDATASYNC = "endpoint.memberdata"
     private val expectedProps = ArrayList<String>()
     private val config: Configuration
 
     @Throws(TechnicalConnectorException::class)
     fun getMemberDataSyncPort(token: SAMLToken): GenericRequest {
         Validate.notNull(token, "Required parameter SAMLToken is null.")
-        return GenericRequest().setEndpoint(config.getProperty("endpoint.memberdata", "\$uddi{uddi:ehealth-fgov-be:business:mycarenetmemberdata:v1}")).setCredential(token, TokenType.SAML).addDefaulHandlerChain()
+
+        val baseUrlKey = "$PROP_ENDPOINT_MEMBERDATASYNC.${token.quality}"
+        val baseUrl =
+            if (config.hasProperty(baseUrlKey))
+                config.getProperty(baseUrlKey, "\$uddi{uddi:ehealth-fgov-be:business:mycarenetmemberdata:v1}")
+            else
+                config.getProperty(PROP_ENDPOINT_MEMBERDATASYNC, "\$uddi{uddi:ehealth-fgov-be:business:iriscarenetmemberdata:v1}")
+
+        return GenericRequest().setEndpoint(baseUrl).setCredential(token, TokenType.SAML).addDefaulHandlerChain()
     }
 
     init {

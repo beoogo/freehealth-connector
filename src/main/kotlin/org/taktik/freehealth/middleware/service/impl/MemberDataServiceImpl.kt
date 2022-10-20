@@ -465,7 +465,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                 name = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = packageInfo.packageName }
             }
             careProvider = be.cin.mycarenet.esb.common.v2.CareProviderType().apply {
-                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse") {
+                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse" || hcpQuality == "retirementhome") {
                     nihii =
                         be.cin.mycarenet.esb.common.v2.NihiiType().apply {
                             quality = hcpQuality
@@ -567,7 +567,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                         }
                     }
                     careProvider = CareProviderType().apply {
-                        if ((hcpQuality == "guardpost") || (hcpQuality == "medicalhouse")) {
+                        if ((hcpQuality == "guardpost") || (hcpQuality == "medicalhouse") || (hcpQuality == "retirementhome")) {
                             // nihii11 is required with guardpost
                             nihii =
                                 NihiiType().apply {
@@ -719,7 +719,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                 hcpQuality == "hospital" ||
                 hcpQuality == "groupofnurses" ||
                 hcpQuality == "labo" ||
-                hcpQuality == "retirement" ||
+                hcpQuality == "retirementhome" ||
                 hcpQuality == "otdpharmacy" ||
                 hcpQuality == "medicalhouse" ||
                 hcpQuality == "groupofdoctors" ||
