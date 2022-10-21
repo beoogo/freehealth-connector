@@ -87,13 +87,7 @@ import org.taktik.connector.technical.utils.ConnectorXmlUtils
 import org.taktik.connector.technical.utils.IdentifierType
 import org.taktik.connector.technical.utils.MarshallerHelper
 import org.taktik.freehealth.middleware.dao.User
-import org.taktik.freehealth.middleware.domain.memberdata.MdaStatus
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataAck
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataBatchRequest
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataBatchResponse
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataList
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataMessage
-import org.taktik.freehealth.middleware.domain.memberdata.MemberDataResponse
+import org.taktik.freehealth.middleware.domain.memberdata.*
 import org.taktik.freehealth.middleware.dto.mycarenet.CommonOutput
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetError
@@ -606,9 +600,10 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
             this.detail = unEncryptedQuery.let { aqb ->
                 if (encryptRequest) {
-                    val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", "CBE")
-                    val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", 820563481L)
-                    val applicationId = config.getProperty("memberdata.keydepot.application", "MYCARENET")
+                    val memberDataProvider = MemberDataProvider.build(hcpQuality)
+                    val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", memberDataProvider.identifierType)
+                    val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", memberDataProvider.identifierValue)
+                    val applicationId = config.getProperty("memberdata.keydepot.application", memberDataProvider.application)
                     val identifierSource = 48
                     val identifier = IdentifierType.lookup(identifierTypeString, null as String?, identifierSource)
 
