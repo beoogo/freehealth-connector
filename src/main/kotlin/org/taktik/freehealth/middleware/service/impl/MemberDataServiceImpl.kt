@@ -25,7 +25,6 @@ import be.cin.encrypted.EncryptedKnownContent
 import be.cin.mycarenet.esb.common.v2.CommonInput
 import be.cin.mycarenet.esb.common.v2.OrigineType
 import be.cin.nip.async.generic.Confirm
-import be.cin.nip.async.generic.Get
 import be.cin.nip.async.generic.Post
 import be.cin.nip.async.generic.PostResponse
 import be.cin.nip.async.generic.QueryParameters
@@ -204,10 +203,10 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
         val blob = unEncryptedQuery.let { aqb ->
             if (encryptRequest) {
-                val memberDataProvider = MemberDataProvider.build(samlToken.quality)
-                val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", memberDataProvider.identifierType)
-                val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", memberDataProvider.identifierValue)
-                val applicationId = config.getProperty("memberdata.keydepot.application", memberDataProvider.application)
+                val keyDepotProvider = KeyDepotProvider.build(samlToken.quality)
+                val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", keyDepotProvider.identifierType)
+                val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", keyDepotProvider.identifierValue)
+                val applicationId = config.getProperty("memberdata.keydepot.application", keyDepotProvider.application)
                 val identifierSource = 48
                 val identifier = IdentifierType.lookup(identifierTypeString, null as String?, identifierSource)
 
@@ -601,10 +600,10 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
             this.detail = unEncryptedQuery.let { aqb ->
                 if (encryptRequest) {
-                    val memberDataProvider = MemberDataProvider.build(hcpQuality)
-                    val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", memberDataProvider.identifierType)
-                    val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", memberDataProvider.identifierValue)
-                    val applicationId = config.getProperty("memberdata.keydepot.application", memberDataProvider.application)
+                    val keyDepotProvider = KeyDepotProvider.build(hcpQuality)
+                    val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", keyDepotProvider.identifierType)
+                    val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", keyDepotProvider.identifierValue)
+                    val applicationId = config.getProperty("memberdata.keydepot.application", keyDepotProvider.application)
                     val identifierSource = 48
                     val identifier = IdentifierType.lookup(identifierTypeString, null as String?, identifierSource)
 

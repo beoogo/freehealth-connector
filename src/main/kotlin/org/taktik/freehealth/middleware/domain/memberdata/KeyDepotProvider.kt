@@ -1,14 +1,14 @@
 package org.taktik.freehealth.middleware.domain.memberdata
 
-data class MemberDataProvider(
+data class KeyDepotProvider(
     val identifierType: String,
     val identifierValue: Long,
     val application: String
 ) {
     companion object {
         fun build(quality: String) = when(quality) {
-            "retirementhome" -> MemberDataProvider("CBE", 787213495L, "IRISCARENET")
-            else -> MemberDataProvider("CBE", 820563481L, "MYCARENET")
+            "retirementhome" -> KeyDepotProvider("CBE", 787213495L, "IRISCARENET")
+            else -> KeyDepotProvider("CBE", 820563481L, "MYCARENET")
         }
     }
 }
