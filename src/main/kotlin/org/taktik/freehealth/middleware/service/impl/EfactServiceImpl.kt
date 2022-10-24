@@ -256,7 +256,10 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
         val blob = RequestBuilderFactory.getBlobBuilder("invoicing").build(content.toByteArray(Charsets.UTF_8))
 
-        val messageName = "HCPFAC" // depends on content of message HCPFAC HCPAFD or HCPVWR
+        val messageName = when(samlToken.quality) {
+            "retirementhome" -> "BRUFAC"
+                else -> "HCPFAC"
+        } // depends on content of message HCPFAC HCPAFD or HCPVWR
         blob.messageName = messageName
 
         // Creation of the request
@@ -357,7 +360,11 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
         val eFactMessages = ArrayList<EfactMessage>()
 
         while (retries-- > 0) {
-            val msgQuery = requestObjectBuilder.createMsgQuery(batchSize, true, "HCPFAC", "HCPAFD", "HCPVWR")
+            val messageNames = when(samlToken.quality){
+                "retirementhome" -> arrayOf("BRUFAC", "BRUAFD", "BRUVWR")
+                else -> arrayOf("HCPFAC", "HCPAFD", "HCPVWR")
+            }
+            val msgQuery = requestObjectBuilder.createMsgQuery(batchSize, true, *messageNames)
             val query = requestObjectBuilder.createQuery(batchSize, true)
 
             val getResponse: GetResponse
