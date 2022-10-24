@@ -204,9 +204,10 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
         val blob = unEncryptedQuery.let { aqb ->
             if (encryptRequest) {
-                val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", "CBE")
-                val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", 820563481L)
-                val applicationId = config.getProperty("memberdata.keydepot.application", "MYCARENET")
+                val memberDataProvider = MemberDataProvider.build(samlToken.quality)
+                val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", memberDataProvider.identifierType)
+                val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", memberDataProvider.identifierValue)
+                val applicationId = config.getProperty("memberdata.keydepot.application", memberDataProvider.application)
                 val identifierSource = 48
                 val identifier = IdentifierType.lookup(identifierTypeString, null as String?, identifierSource)
 
