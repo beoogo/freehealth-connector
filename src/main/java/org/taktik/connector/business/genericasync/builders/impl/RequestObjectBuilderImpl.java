@@ -152,6 +152,26 @@ public class RequestObjectBuilderImpl implements RequestObjectBuilder {
       return request;
    }
 
+   @Override
+   public Confirm buildConfirmWithTAckReferenceStrings(OrigineType origin, List<String> values) {
+      Confirm request = new Confirm();
+      request.setOrigin(origin);
+      for (String ref : values) {
+         request.getTAckReferences().add(ref);
+      }
+      return request;
+   }
+
+   @Override
+   public Confirm buildConfirmWithMessageReferenceStrings(OrigineType origin, List<String> values) {
+      Confirm request = new Confirm();
+      request.setOrigin(origin);
+      for (String ref : values) {
+         request.getMsgRefValues().add(ref);
+      }
+      return request;
+   }
+
    private void addTAckResponseReferencesToConfirm(GetResponse getResponse, Confirm request) {
       for (TAckResponse tAckResponse : getResponse.getReturn().getTAckResponses()) {
          request.getTAckReferences().add(tAckResponse.getTAck().getReference());

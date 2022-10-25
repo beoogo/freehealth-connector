@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.freehealth.middleware.dto.efact.InvoicesBatch
+import org.taktik.freehealth.middleware.service.ConfirmAckType
+import org.taktik.freehealth.middleware.service.ConfirmMessageType
 import org.taktik.freehealth.middleware.service.EfactService
 import java.util.*
 
@@ -112,7 +114,8 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
         @RequestParam ssin: String,
         @RequestParam firstName: String,
         @RequestParam lastName: String,
-        @RequestBody valueHashes: List<String>
+        @RequestParam(required = false, defaultValue = "HASHES") valuesType: ConfirmAckType,
+        @RequestBody values: List<String>
                ) =
         efactService.confirmAcks(
             keystoreId = keystoreId,
@@ -122,7 +125,8 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
             hcpSsin = ssin,
             hcpFirstName = firstName,
             hcpLastName = lastName,
-            valueHashes = valueHashes
+            valuesType = valuesType,
+            values = values
         )
 
     @PutMapping("/confirm/msgs/{nihii}", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
@@ -134,6 +138,7 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
         @RequestParam ssin: String,
         @RequestParam firstName: String,
         @RequestParam lastName: String,
+        @RequestParam(required = false, defaultValue = "HASHES") valuesType: ConfirmMessageType,
         @RequestBody valueHashes: List<String>
     ) =
         efactService.confirmMessages(
@@ -144,6 +149,7 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
             hcpSsin = ssin,
             hcpFirstName = firstName,
             hcpLastName = lastName,
-            valueHashes = valueHashes
+            valuesType = valuesType,
+            values = valueHashes
         )
 }
