@@ -260,9 +260,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("25", formattedCreationDate)
         ws.write("27", sender.bce)
         ws.write("28", batchRef)
-        ws.write("31", sender.bic)
-        ws.write("36", sender.iban)
-
+        if (sender.isRestHome) { // Use IBAN/BIC C
+            ws.write("53", sender.bic)
+            ws.write("45", sender.iban)
+        }
+        else { // Use IBAN/BIC A
+            ws.write("31", sender.bic)
+            ws.write("36", sender.iban)
+        }
         ws.writeFieldsWithCheckSum()
 
         return recordNumber+1
@@ -699,8 +704,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("23", invoicingMonth)
         ws.write("27", sender.bce)
         ws.write("28", invoicingYear!! * 100 + invoicingMonth!!)
-        ws.write("31", sender.bic)
-        ws.write("36", sender.iban)
+        if (sender.isRestHome) { // Use IBAN/BIC C
+            ws.write("53", sender.bic)
+            ws.write("45", sender.iban)
+        }
+        else { // Use IBAN/BIC A
+            ws.write("31", sender.bic)
+            ws.write("36", sender.iban)
+        }
 
         var cs = BigInteger.ZERO
         for (`val` in codesNomenclature) {

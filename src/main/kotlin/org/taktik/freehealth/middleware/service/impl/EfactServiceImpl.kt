@@ -45,6 +45,8 @@ import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
 import org.taktik.freehealth.middleware.exception.MissingTokenException
 import org.taktik.freehealth.middleware.format.efact.BelgianInsuranceInvoicingFormatReader
 import org.taktik.freehealth.middleware.format.efact.BelgianInsuranceInvoicingFormatWriter
+import org.taktik.freehealth.middleware.service.ConfirmAckType
+import org.taktik.freehealth.middleware.service.ConfirmMessageType
 import org.taktik.freehealth.middleware.service.EfactService
 import org.taktik.freehealth.middleware.service.STSService
 import java.io.IOException
@@ -83,7 +85,7 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
         try {
             iv.write200and300(batch.sender!!, batch.numericalRef
-                ?: 0, batch.fileRef!!, if (isTest) 92 else 12, batch.uniqueSendNumber!!, batch.invoicingYear, batch.invoicingMonth, isTest)
+                ?: 0, batch.fileRef!!, if (batch.sender?.isRestHome != true && isTest) 92 else 12, batch.uniqueSendNumber!!, batch.invoicingYear, batch.invoicingMonth, isTest)
             val metadata = makeFlatFileCore(iv, batch, isTest)
 
             for (k in metadata.codesPerOAMap.keys) {
@@ -256,7 +258,10 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
         val blob = RequestBuilderFactory.getBlobBuilder("invoicing").build(content.toByteArray(Charsets.UTF_8))
 
-        val messageName = "HCPFAC" // depends on content of message HCPFAC HCPAFD or HCPVWR
+        val messageName = when(samlToken.quality) {
+            "retirementhome" -> "BRUFAC"
+                else -> "HCPFAC"
+        } // depends on content of message HCPFAC HCPAFD or HCPVWR
         blob.messageName = messageName
 
         // Creation of the request
@@ -357,7 +362,11 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
         val eFactMessages = ArrayList<EfactMessage>()
 
         while (retries-- > 0) {
-            val msgQuery = requestObjectBuilder.createMsgQuery(batchSize, true, "HCPFAC", "HCPAFD", "HCPVWR")
+            val messageNames = when(samlToken.quality){
+                "retirementhome" -> arrayOf("BRUFAC", "BRUAFD", "BRUVWR")
+                else -> arrayOf("HCPFAC", "HCPAFD", "HCPVWR")
+            }
+            val msgQuery = requestObjectBuilder.createMsgQuery(batchSize, true, *messageNames)
             val query = requestObjectBuilder.createQuery(batchSize, true)
 
             val getResponse: GetResponse
@@ -424,9 +433,10 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
         hcpSsin: String,
         hcpFirstName: String,
         hcpLastName: String,
-        valueHashes: List<String>
+        valuesType: ConfirmAckType,
+        values: List<String>
     ): Boolean {
-        if (valueHashes.isEmpty()) {
+        if (values.isEmpty()) {
             return true
         }
         val samlToken =
@@ -435,11 +445,31 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
         val confirmheader = WsAddressingUtil.createHeader("", "urn:be:cin:nip:async:generic:confirm:hash")
 
-        val confirm =
-            BuilderFactory.getRequestObjectBuilder("invoicing")
-                .buildConfirmRequestWithHashes(buildOriginType(samlToken.quality, hcpNihii, hcpSsin, hcpFirstName, hcpLastName),
-                                               listOf(),
-                                               valueHashes.map { valueHash -> java.util.Base64.getDecoder().decode(valueHash) })
+        val confirm = when(valuesType) {
+        ConfirmAckType.REFERENCES -> BuilderFactory.getRequestObjectBuilder("invoicing")
+                    .buildConfirmWithTAckReferenceStrings(
+                        buildOriginType(
+                            samlToken.quality,
+                            hcpNihii,
+                            hcpSsin,
+                            hcpFirstName,
+                            hcpLastName
+                        ),
+                        values
+                    )
+            else -> BuilderFactory.getRequestObjectBuilder("invoicing")
+                    .buildConfirmRequestWithHashes(
+                        buildOriginType(
+                            samlToken.quality,
+                            hcpNihii,
+                            hcpSsin,
+                            hcpFirstName,
+                            hcpLastName
+                        ),
+                        listOf(),
+                        values.map { valueHash -> java.util.Base64.getDecoder().decode(valueHash) }
+                    )
+        }
 
         genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
 
@@ -454,9 +484,10 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
         hcpSsin: String,
         hcpFirstName: String,
         hcpLastName: String,
-        valueHashes: List<String>
+        valuesType: ConfirmMessageType,
+        values: List<String>
     ): Boolean {
-        if (valueHashes.isEmpty()) {
+        if (values.isEmpty()) {
             return true
         }
         val samlToken =
@@ -464,12 +495,19 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
                 ?: throw MissingTokenException("Cannot obtain token for Efact operations")
 
         val confirmheader = WsAddressingUtil.createHeader("", "urn:be:cin:nip:async:generic:confirm:hash")
-        val confirm =
-            BuilderFactory.getRequestObjectBuilder("invoicing")
-                .buildConfirmRequestWithHashes(buildOriginType(samlToken.quality, hcpNihii, hcpSsin, hcpFirstName, hcpLastName),
-                    valueHashes.map { valueHash -> java.util.Base64.getDecoder().decode(valueHash) },
+        val confirm = when(valuesType) {
+            ConfirmMessageType.REFERENCES -> BuilderFactory.getRequestObjectBuilder("invoicing")
+                .buildConfirmWithMessageReferenceStrings(
+                    buildOriginType(samlToken.quality, hcpNihii, hcpSsin, hcpFirstName, hcpLastName),
+                    values
+                )
+            else -> BuilderFactory.getRequestObjectBuilder("invoicing")
+                .buildConfirmRequestWithHashes(
+                    buildOriginType(samlToken.quality, hcpNihii, hcpSsin, hcpFirstName, hcpLastName),
+                    values.map { valueHash -> java.util.Base64.getDecoder().decode(valueHash) },
                     listOf()
-                    )
+                )
+        }
 
         genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
 

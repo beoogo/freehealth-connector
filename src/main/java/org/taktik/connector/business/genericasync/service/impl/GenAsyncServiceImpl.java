@@ -89,7 +89,12 @@ public class GenAsyncServiceImpl implements GenAsyncService {
 
    protected static GenericRequest build(SAMLToken token, String serviceName) throws TechnicalConnectorException {
       GenericRequest request = new GenericRequest();
-      request.setEndpoint(getProperty("endpoint.genericasync.", serviceName, true));
+      if (hasProperty("endpoint.genericasync." + token.getQuality() + ".", serviceName)) {
+         request.setEndpoint(getProperty("endpoint.genericasync." + token.getQuality()  +".", serviceName, true));
+      }
+      else {
+         request.setEndpoint(getProperty("endpoint.genericasync.", serviceName, true));
+      }
       HandlerChain chain = HandlerChainUtil.buildChainWithValidator("validation.incoming.message.genasync.", "/mycarenet-genasync/XSD/GenericAsync-V4.xsd");
       chain.register(HandlerPosition.SECURITY, new SAMLHolderOfKeyHandler(token, getDuration("security.outgoing.message.genasync.timestamp.", serviceName, 30L)));
       chain.register(HandlerPosition.SECURITY, new IncomingSecurityHandler(getDuration("security.incoming.message.genasync.timestamp.created.ttl.", serviceName, 30L), getDuration("security.incoming.message.genasync.timestamp.expires.ttl.", serviceName, 30L)));
@@ -97,6 +102,11 @@ public class GenAsyncServiceImpl implements GenAsyncService {
       request.addHandlerChain(chain);
       request.addDefaulHandlerChain();
       return request;
+   }
+
+   private static boolean hasProperty(String startKey, String serviceName) {
+      String key = startKey + serviceName + ".v1";
+      return config.hasProperty(key);
    }
 
    private static String getProperty(String startKey, String serviceName, boolean required, String... defaultValue) throws TechnicalConnectorException {

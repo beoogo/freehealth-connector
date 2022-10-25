@@ -12,6 +12,8 @@ import be.cin.nip.async.generic.Query;
 import be.cin.nip.async.generic.QueryParameters;
 import be.cin.nip.async.generic.TAckResponse;
 import be.cin.types.v1.Blob;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.taktik.connector.business.genericasync.domain.ConfigName;
 import org.taktik.connector.business.genericasync.exception.GenAsyncBusinessConnectorException;
 import org.taktik.connector.business.mycarenetdomaincommons.domain.InputReference;
@@ -51,4 +53,8 @@ public interface RequestObjectBuilder extends ConfigurableImplementation {
    Post buildPostRequest(String messageName, String projectName, String platformName, ConfigName configName, byte[] xmlByteArray, KeyStoreCredential credential, KeyDepotManager keyDepotManager, InputReference inputReference, String licenseUsername, String licensePassword, String packageName) throws TechnicalConnectorException, InstantiationException, GenAsyncBusinessConnectorException;
 
    Post buildPostRequest(String messageName, String projectName, String platformName, byte[] xmlByteArray, KeyStoreCredential credential, KeyDepotManager keyDepotManager, InputReference inputReference, String licenseUsername, String licensePassword, String packageName) throws TechnicalConnectorException, GenAsyncBusinessConnectorException, InstantiationException;
+
+   Confirm buildConfirmWithTAckReferenceStrings(OrigineType buildOriginType, List<String> values);
+
+   Confirm buildConfirmWithMessageReferenceStrings(OrigineType buildOriginType, List<String> values);
 }

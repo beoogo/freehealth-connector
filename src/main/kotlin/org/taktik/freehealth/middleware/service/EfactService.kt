@@ -1,6 +1,5 @@
 package org.taktik.freehealth.middleware.service
 
-import org.taktik.connector.business.domain.dmg.DmgAcknowledge
 import org.taktik.freehealth.middleware.dto.efact.EfactMessage
 import org.taktik.freehealth.middleware.dto.efact.EfactSendResponse
 import org.taktik.freehealth.middleware.dto.efact.FlatFileWithMetadata
@@ -28,7 +27,8 @@ interface EfactService {
         hcpSsin: String,
         hcpFirstName: String,
         hcpLastName: String,
-        valueHashes: List<String>
+        valuesType: ConfirmAckType,
+        values: List<String>
     ): Boolean
 
     fun confirmMessages(
@@ -39,7 +39,8 @@ interface EfactService {
         hcpSsin: String,
         hcpFirstName: String,
         hcpLastName: String,
-        valueHashes: List<String>
+        valuesType: ConfirmMessageType,
+        values: List<String>
     ): Boolean
 
     fun makeFlatFile(batch: InvoicesBatch, isTest: Boolean): String
