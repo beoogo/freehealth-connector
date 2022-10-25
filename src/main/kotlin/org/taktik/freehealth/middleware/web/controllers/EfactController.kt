@@ -139,7 +139,7 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
         @RequestParam firstName: String,
         @RequestParam lastName: String,
         @RequestParam(required = false, defaultValue = "HASHES") valuesType: ConfirmMessageType,
-        @RequestBody valueHashes: List<String>
+        @RequestBody values: List<String>
     ) =
         efactService.confirmMessages(
             keystoreId = keystoreId,
@@ -150,6 +150,6 @@ class EfactController(val efactService: EfactService, val mapper: MapperFacade) 
             hcpFirstName = firstName,
             hcpLastName = lastName,
             valuesType = valuesType,
-            values = valueHashes
+            values = values
         )
 }

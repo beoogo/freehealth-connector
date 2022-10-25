@@ -470,6 +470,7 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
                         values.map { valueHash -> java.util.Base64.getDecoder().decode(valueHash) }
                     )
         }
+
         genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
 
         return true

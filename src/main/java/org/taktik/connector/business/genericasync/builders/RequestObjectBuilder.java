@@ -54,9 +54,7 @@ public interface RequestObjectBuilder extends ConfigurableImplementation {
 
    Post buildPostRequest(String messageName, String projectName, String platformName, byte[] xmlByteArray, KeyStoreCredential credential, KeyDepotManager keyDepotManager, InputReference inputReference, String licenseUsername, String licensePassword, String packageName) throws TechnicalConnectorException, GenAsyncBusinessConnectorException, InstantiationException;
 
-    @NotNull
-    Confirm buildConfirmWithTAckReferenceStrings(@NotNull OrigineType buildOriginType, @NotNull List<String> values);
+   Confirm buildConfirmWithTAckReferenceStrings(OrigineType buildOriginType, List<String> values);
 
-    @Nullable
-    Confirm buildConfirmWithMessageReferenceStrings(@NotNull OrigineType buildOriginType, @NotNull List<String> values);
+   Confirm buildConfirmWithMessageReferenceStrings(OrigineType buildOriginType, List<String> values);
 }
