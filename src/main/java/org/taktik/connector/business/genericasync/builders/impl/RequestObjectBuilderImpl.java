@@ -198,6 +198,9 @@ public class RequestObjectBuilderImpl implements RequestObjectBuilder {
       msgQuery.setInclude(include);
       msgQuery.setMax(max);
 
+      // force list creation to initialize 'MessageNames' element
+      msgQuery.getMessageNames();
+
       for (String messageName : messageNames) {
          msgQuery.getMessageNames().add(messageName);
       }
