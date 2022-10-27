@@ -406,8 +406,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("17", 0)
         ws.write("19", (if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
         ws.write("22", (if (icd.nbDays >= 0) "+" else "-") + nf4.format(abs(icd.nbDays)))
-        ws.write("24", 0)
-        ws.write("27", 0)
+        ws.write("24", "+" + nf11.format(0))
+        ws.write("27", "+" + nf9.format(0))
         ws.write("28", icd.invoiceRef)
 
         val supplement = if (icd.codeNomenclature == 763593L) icd.doctorSupplement else 0
@@ -636,8 +636,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("2", recordNumber)
         ws.write("4", admissionStartTime)
         ws.write("5", admissionStartDate)
-        ws.write("6a", (admissionEndDate ?: 0) / 10_000)
-        ws.write("6b", (admissionEndDate ?: 0) % 10_000)
+        ws.write("6a", admissionEndDate)
 
         var affCode = insuranceCode
 
