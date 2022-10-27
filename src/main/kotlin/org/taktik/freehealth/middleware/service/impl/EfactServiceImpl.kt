@@ -85,7 +85,7 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
 
         try {
             iv.write200and300(batch.sender!!, batch.numericalRef
-                ?: 0, batch.fileRef!!, if (batch.sender?.isRestHome != true && isTest) 92 else 12, batch.uniqueSendNumber!!, batch.invoicingYear, batch.invoicingMonth, isTest)
+                ?: 0, batch.fileRef!!, if (isTest) 92 else 12, batch.uniqueSendNumber!!, batch.invoicingYear, batch.invoicingMonth, isTest)
             val metadata = makeFlatFileCore(iv, batch, isTest)
 
             for (k in metadata.codesPerOAMap.keys) {
@@ -406,6 +406,7 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
                         }
                         xades = Base64.encodeBase64String(r.xadesT.value)
                         hashValue = Base64.encodeBase64String(r.detail.hashValue)
+                        reference = r.detail.reference
                     } catch (e: IOException) {}
                 }
             } + getResponse.getReturn().tAckResponses.map { r ->

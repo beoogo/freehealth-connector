@@ -63,7 +63,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
     fun getDestCode(affCode: String, invoiceSender: InvoiceSender, returnAffCodeIfMH: Boolean = false): String {
         val firstCode = affCode.substring(0, 3).replace("[^0-9]".toRegex(), "")
 
-        return if (invoiceSender.isMedicalHouse) {
+        return if (invoiceSender.isMedicalHouse || invoiceSender.isRestHome) {
             if (returnAffCodeIfMH) firstCode else {
                 if (affCode.startsWith("3")) {
                     if (Arrays.asList("304", "305", "309", "311", "315", "317", "319", "322", "323", "325").contains(firstCode)) "300"

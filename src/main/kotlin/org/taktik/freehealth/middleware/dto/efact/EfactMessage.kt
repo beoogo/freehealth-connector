@@ -15,4 +15,5 @@ class EfactMessage {
     var tAck: TAck? = null
 
     var hashValue: String? = null
+    var reference: String? = null
 }
