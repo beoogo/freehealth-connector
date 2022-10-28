@@ -63,7 +63,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
     fun getDestCode(affCode: String, invoiceSender: InvoiceSender, returnAffCodeIfMH: Boolean = false): String {
         val firstCode = affCode.substring(0, 3).replace("[^0-9]".toRegex(), "")
 
-        return if (invoiceSender.isMedicalHouse) {
+        return if (invoiceSender.isMedicalHouse || invoiceSender.isRestHome) {
             if (returnAffCodeIfMH) firstCode else {
                 if (affCode.startsWith("3")) {
                     if (Arrays.asList("304", "305", "309", "311", "315", "317", "319", "322", "323", "325").contains(firstCode)) "300"
@@ -245,6 +245,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                         invoiceContent: Int? = 40): Int {
 
         val ws = WriterSession(writer, Record10Description)
+        val nf34 = DecimalFormat("0000000000000000000000000000000000")
 
         val creationDate = LocalDateTime.now()
         val formattedCreationDate = creationDate.format(dtf)
@@ -263,6 +264,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
+            ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
             ws.write("31", sender.bic)
@@ -406,8 +408,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("17", 0)
         ws.write("19", (if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
         ws.write("22", (if (icd.nbDays >= 0) "+" else "-") + nf4.format(abs(icd.nbDays)))
-        ws.write("24", 0)
-        ws.write("27", 0)
+        ws.write("24", "+" + nf11.format(0))
+        ws.write("27", "+" + nf9.format(0))
         ws.write("28", icd.invoiceRef)
 
         val supplement = if (icd.codeNomenclature == 763593L) icd.doctorSupplement else 0
@@ -636,8 +638,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("2", recordNumber)
         ws.write("4", admissionStartTime)
         ws.write("5", admissionStartDate)
-        ws.write("6a", (admissionEndDate ?: 0) / 10_000)
-        ws.write("6b", (admissionEndDate ?: 0) % 10_000)
+        ws.write("6a", admissionEndDate)
 
         var affCode = insuranceCode
 
@@ -687,6 +688,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                         codesNomenclature: List<Long>,
                         amount: Long?): Int {
         val ws = WriterSession(writer, Record90Description)
+        val nf34 = DecimalFormat("0000000000000000000000000000000000")
 
         val creationDate = LocalDateTime.now()
         val formattedCreationDate = creationDate.format(dtf)
@@ -707,6 +709,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
+            ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
             ws.write("31", sender.bic)
