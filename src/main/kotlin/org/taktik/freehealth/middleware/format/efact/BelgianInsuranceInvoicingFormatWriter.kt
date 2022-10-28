@@ -245,6 +245,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                         invoiceContent: Int? = 40): Int {
 
         val ws = WriterSession(writer, Record10Description)
+        val nf34 = DecimalFormat("0000000000000000000000000000000000")
 
         val creationDate = LocalDateTime.now()
         val formattedCreationDate = creationDate.format(dtf)
@@ -263,6 +264,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
+            ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
             ws.write("31", sender.bic)
