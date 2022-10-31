@@ -327,8 +327,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         ws.write("4", admissionStartTime ?: 0)
         ws.write("5", admissionStartDate ?: 0)
-        ws.write("6a", (admissionEndDate ?: 0) / 10_000)
-        ws.write("6b", (admissionEndDate ?: 0) % 10_000)
+        ws.write("6a", admissionEndDate ?: 0)
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
@@ -347,7 +346,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         ws.write("18", destCode)
         ws.write("20", startOfCoveragePeriod)
-        ws.write("22", admissionEndTime)
+        ws.write("22", admissionEndTime ?: 0)
         ws.write("24", invoiceNumber)
         ws.write("27", ct1 * 1000 + ct2)
         ws.write("29", relatedInvoiceNumber)
@@ -659,7 +658,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("18", destCode)
         ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
         ws.write("20", (if(magneticInvoice) "00000000" else formattedCreationDate))
-        ws.write("22", admissionEndTime)
+        ws.write("22", admissionEndTime ?: 0)
         ws.write("24", invoiceNumber)
         ws.write("27", (if (fee >= 0) "+" else "-") + nf9.format(Math.abs(fee)))
         ws.write("28", invoiceRef)
