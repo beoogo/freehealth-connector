@@ -397,7 +397,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
         ws.write("10", 0)
-        ws.write("11", 0)
+        ws.write("11", if (sender.isRestHome) 2 else 0)
         ws.write("13", 990)
         ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0)
         ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber)
