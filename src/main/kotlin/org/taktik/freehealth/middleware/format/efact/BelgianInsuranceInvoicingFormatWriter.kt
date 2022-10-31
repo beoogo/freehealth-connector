@@ -261,14 +261,11 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("25", formattedCreationDate)
         ws.write("27", sender.bce)
         ws.write("28", batchRef)
+        ws.write("31", sender.bic)
+        ws.write("36", sender.iban)
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
-            ws.write("36", nf34.format(0))
-        }
-        else { // Use IBAN/BIC A
-            ws.write("31", sender.bic)
-            ws.write("36", sender.iban)
         }
         ws.writeFieldsWithCheckSum()
 
@@ -700,19 +697,22 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", sendingNumber)
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
         ws.write("15", "+00000000000")
-        ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
         ws.write("22", invoicingYear)
         ws.write("23", invoicingMonth)
         ws.write("27", sender.bce)
         ws.write("28", invoicingYear!! * 100 + invoicingMonth!!)
+        ws.write("31", sender.bic)
+        ws.write("36", sender.iban)
         if (sender.isRestHome) { // Use IBAN/BIC C
+            ws.write("19", "+00000000000")
+            ws.write("55", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
+
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
             ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
-            ws.write("31", sender.bic)
-            ws.write("36", sender.iban)
+            ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
         }
 
         var cs = BigInteger.ZERO
