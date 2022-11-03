@@ -397,7 +397,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
         ws.write("10", 0)
-        ws.write("11", if (sender.isRestHome) 2 else 0)
+        ws.write("11", if (sender.isRestHome) 3 else 0)
         ws.write("13", 990)
         ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0)
         ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber)
@@ -468,6 +468,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
+        ws.write("11", if (sender.isRestHome) 3 else 0)
         ws.write("12", (icd.timeOfDay?: InvoicingTimeOfDay.Other).code)
         ws.write("13",990)
 
@@ -653,7 +654,13 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         val destCode = getDestCode(insuranceCode, sender)
 
         ws.write("18", destCode)
-        ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+        if (sender.isRestHome) {
+            ws.write("19", "+00000000000")
+            ws.write("55", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+        }
+        else {
+            ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+        }
         ws.write("20", (if(magneticInvoice) "00000000" else formattedCreationDate))
         ws.write("22", admissionEndTime ?: 0)
         ws.write("24", invoiceNumber)
