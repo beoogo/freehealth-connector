@@ -759,7 +759,6 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
-            ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
             ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
