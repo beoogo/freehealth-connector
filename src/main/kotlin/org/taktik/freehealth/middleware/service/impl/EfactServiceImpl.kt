@@ -89,9 +89,9 @@ class EfactServiceImpl(private val stsService: STSService, private val mapper: M
             val metadata = makeFlatFileCore(iv, batch, isTest)
 
             for (k in metadata.codesPerOAMap.keys) {
-                iv.write400(k, batch.numericalRef, metadata.recordsCountPerOAMap[k]!![0], metadata.codesPerOAMap[k]!!, metadata.amountPerOAMap[k]!![0])
+                iv.write400(batch.sender!!, k, batch.numericalRef, metadata.recordsCountPerOAMap[k]!![0], metadata.codesPerOAMap[k]!!, metadata.amountPerOAMap[k]!![0])
             }
-            iv.write960000(batch.ioFederationCode!!.replace(Regex("00$"), "99"), metadata.recordsCount, metadata.codes, metadata.amount)
+            iv.write960000(batch.sender!!, batch.ioFederationCode!!.replace(Regex("00$"), "99"), metadata.recordsCount, metadata.codes, metadata.amount)
         } catch (e: IOException) {
             throw IllegalArgumentException(e)
         }

@@ -153,7 +153,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
     }
 
     @Throws(IOException::class)
-    fun write400(oa: String, numericalRef: Long?, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
+    fun write400(
+        sender: InvoiceSender,
+        oa: String,
+        numericalRef: Long?,
+        recordsCount: Long,
+        codesNomenclature: List<Long>,
+        amount: Long
+    ) {
         val ws = WriterSession(writer, Segment400Record95Description)
 
         val creationDate = LocalDateTime.now()
@@ -173,28 +180,46 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("4011", 0)
         ws.write("402", numericalRef!!)
         ws.write("4021", 0)
-        ws.write("403", if (amount >= 0) "+" else "-")
-        ws.write("404", Math.abs(amount))
+        if (sender.isRestHome) {
+            ws.write("403", "+")
+            ws.write("404", 0)
+        }
+        else {
+            ws.write("403", if (amount >= 0) "+" else "-")
+            ws.write("404", Math.abs(amount))
+        }
         ws.write("4041", 0)
         ws.write("405", "+")
         ws.write("406", 0)
         ws.write("4061", 0)
-        ws.write("407", if (amount >= 0) "+" else "-")
-        ws.write("408", Math.abs(amount))
+        if (sender.isRestHome) {
+            ws.write("407", "+")
+            ws.write("408", 0)
+        }
+        else {
+            ws.write("407", if (amount >= 0) "+" else "-")
+            ws.write("408", Math.abs(amount))
+        }
         ws.write("4081", 0)
         ws.write("409", recordsCount)
         ws.write("4091", 0)
         ws.write("410", modulo)
         ws.write("4101", 0)
-        ws.write("411", "+")
-        ws.write("412", 0)
+        if (sender.isRestHome) {
+            ws.write("411", if (amount >= 0) "+" else "-")
+            ws.write("412", Math.abs(amount))
+        }
+        else {
+            ws.write("411", "+")
+            ws.write("412", 0)
+        }
         ws.write("413", "")
 
         ws.writeFieldsWithoutCheckSum()
     }
 
     @Throws(IOException::class)
-    fun write960000(oa: String, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
+    fun write960000(sender: InvoiceSender, oa: String, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
         val ws = WriterSession(writer, Segment500Record96Description)
 
         val creationDate = LocalDateTime.now()
@@ -214,21 +239,39 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("5011", 0)
         ws.write("502", 0)
         ws.write("5021", 0)
-        ws.write("503", if (amount >= 0) "+" else "-")
-        ws.write("504", Math.abs(amount))
+        if (sender.isRestHome) {
+            ws.write("503", "+")
+            ws.write("504", 0)
+        }
+        else {
+            ws.write("503", if (amount >= 0) "+" else "-")
+            ws.write("504", Math.abs(amount))
+        }
         ws.write("5041", 0)
         ws.write("505", "+")
         ws.write("506", 0)
         ws.write("5061", 0)
-        ws.write("507", if (amount >= 0) "+" else "-")
-        ws.write("508", Math.abs(amount))
+        if (sender.isRestHome) {
+            ws.write("507", "+")
+            ws.write("508", 0)
+        }
+        else {
+            ws.write("507", if (amount >= 0) "+" else "-")
+            ws.write("508", Math.abs(amount))
+        }
         ws.write("5081", 0)
         ws.write("509", recordsCount)
         ws.write("5091", 0)
         ws.write("510", modulo)
         ws.write("5101", 0)
-        ws.write("511", "+")
-        ws.write("512", 0)
+        if (sender.isRestHome) {
+            ws.write("511", if (amount >= 0) "+" else "-")
+            ws.write("512", Math.abs(amount))
+        }
+        else {
+            ws.write("511", "+")
+            ws.write("512", 0)
+        }
         ws.write("513", "")
 
         ws.writeFieldsWithoutCheckSum()
