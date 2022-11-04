@@ -180,7 +180,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("4011", 0)
         ws.write("402", numericalRef!!)
         ws.write("4021", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount A
             ws.write("403", "+")
             ws.write("404", 0)
         }
@@ -192,7 +192,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("405", "+")
         ws.write("406", 0)
         ws.write("4061", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount A+B
             ws.write("407", "+")
             ws.write("408", 0)
         }
@@ -205,7 +205,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("4091", 0)
         ws.write("410", modulo)
         ws.write("4101", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount C
             ws.write("411", if (amount >= 0) "+" else "-")
             ws.write("412", Math.abs(amount))
         }
@@ -239,7 +239,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("5011", 0)
         ws.write("502", 0)
         ws.write("5021", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount A
             ws.write("503", "+")
             ws.write("504", 0)
         }
@@ -251,7 +251,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("505", "+")
         ws.write("506", 0)
         ws.write("5061", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount A+B
             ws.write("507", "+")
             ws.write("508", 0)
         }
@@ -264,7 +264,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("5091", 0)
         ws.write("510", modulo)
         ws.write("5101", 0)
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // Amount C
             ws.write("511", if (amount >= 0) "+" else "-")
             ws.write("512", Math.abs(amount))
         }
@@ -304,11 +304,13 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("25", formattedCreationDate)
         ws.write("27", sender.bce)
         ws.write("28", batchRef)
-        ws.write("31", sender.bic)
-        ws.write("36", sender.iban)
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
+        }
+        else { // Use IBAN/BIC A
+            ws.write("31", sender.bic)
+            ws.write("36", sender.iban)
         }
         ws.writeFieldsWithCheckSum()
 
@@ -374,7 +376,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("10", invoiceType)
         ws.write("11", if (relatedInvoiceNumber == null) 0 else { if(!creditNote) 1 else 3 })
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // NIHII of stay
             ws.write("15", sender.nihii.toString().padEnd(11, '0'))
         }
         ws.write("16", if (ignorePrescriptionDate) 1 else 0)
@@ -440,10 +442,10 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
         ws.write("10", 0)
-        ws.write("11", if (sender.isRestHome) 3 else 0)
+        ws.write("11", if (sender.isRestHome) 3 else 0) // Account 3 = C, 0 = A
         ws.write("13", 990)
-        ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0)
-        ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber)
+        ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0) // NIHII of stay
+        ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber) // NIHII of stay
         ws.write("17", 0)
         ws.write("19", (if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
         ws.write("22", (if (icd.nbDays >= 0) "+" else "-") + nf4.format(abs(icd.nbDays)))
@@ -511,12 +513,13 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
-        ws.write("11", if (sender.isRestHome) 3 else 0)
+        ws.write("11", if (sender.isRestHome) 3 else 0) // Account 3=C / 0=A
         ws.write("12", (icd.timeOfDay?: InvoicingTimeOfDay.Other).code)
         ws.write("13",990)
 
-        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", sender.nihii)
+        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", sender.nihii) // NIHII of stay
 
+        // Identification of dispenser
         ws.write("15",
             when {
                 sender.isMedicalHouse && icd.codeNomenclature == 109594L -> sender.nihii
@@ -524,10 +527,10 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                 else -> icd.doctorIdentificationNumber
             }
         )
-
+        // Norm dispenser
         ws.write("16",
                  when {
-                     sender.isRestHome || sender.isMedicalHouse && icd.codeNomenclature != 109594L -> 0
+                     sender.isRestHome || sender.isMedicalHouse && icd.codeNomenclature != 109594L -> 0 // No dispenser in 15
                      icd.gnotionNihii?.isNotEmpty() == true -> 4
                      icd.internshipNihii?.isNotEmpty() == true -> 5
                      else -> 1
@@ -689,7 +692,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == Gender.male) 1 else 2)
-        ws.write("10", if (sender.isRestHome) 4 else 3)
+        ws.write("10", if (sender.isRestHome) 4 else 3) // Bill type
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
         ws.write("15", "+00000000000")
 
@@ -698,8 +701,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         ws.write("18", destCode)
         if (sender.isRestHome) {
-            ws.write("19", "+00000000000")
-            ws.write("55", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+            ws.write("19", "+00000000000") // Amount A
+            ws.write("55", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount))) // Amount C
         }
         else {
             ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
@@ -751,17 +754,17 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("23", invoicingMonth)
         ws.write("27", sender.bce)
         ws.write("28", invoicingYear!! * 100 + invoicingMonth!!)
-        ws.write("31", sender.bic)
-        ws.write("36", sender.iban)
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("19", "+00000000000")
             ws.write("55", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
-
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
         }
         else { // Use IBAN/BIC A
             ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
+            ws.write("31", sender.bic)
+            ws.write("36", sender.iban)
+
         }
 
         var cs = BigInteger.ZERO
