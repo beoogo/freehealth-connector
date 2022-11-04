@@ -192,14 +192,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("405", "+")
         ws.write("406", 0)
         ws.write("4061", 0)
-        if (sender.isRestHome) { // Amount A+B
-            ws.write("407", "+")
-            ws.write("408", 0)
-        }
-        else {
-            ws.write("407", if (amount >= 0) "+" else "-")
-            ws.write("408", Math.abs(amount))
-        }
+        ws.write("407", if (amount >= 0) "+" else "-")
+        ws.write("408", Math.abs(amount))
         ws.write("4081", 0)
         ws.write("409", recordsCount)
         ws.write("4091", 0)
@@ -251,14 +245,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("505", "+")
         ws.write("506", 0)
         ws.write("5061", 0)
-        if (sender.isRestHome) { // Amount A+B
-            ws.write("507", "+")
-            ws.write("508", 0)
-        }
-        else {
-            ws.write("507", if (amount >= 0) "+" else "-")
-            ws.write("508", Math.abs(amount))
-        }
+        ws.write("507", if (amount >= 0) "+" else "-")
+        ws.write("508", Math.abs(amount))
         ws.write("5081", 0)
         ws.write("509", recordsCount)
         ws.write("5091", 0)
