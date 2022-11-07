@@ -245,8 +245,10 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("505", "+")
         ws.write("506", 0)
         ws.write("5061", 0)
+        // Amount A+B+C
         ws.write("507", if (amount >= 0) "+" else "-")
         ws.write("508", Math.abs(amount))
+
         ws.write("5081", 0)
         ws.write("509", recordsCount)
         ws.write("5091", 0)
@@ -299,6 +301,8 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
             ws.write("31", sender.bic)
             ws.write("36", sender.iban)
         }
+        ws.write("48", if (sender.isRestHome) 4 else 0) // Brussels GGC or federal
+
         ws.writeFieldsWithCheckSum()
 
         return recordNumber+1
