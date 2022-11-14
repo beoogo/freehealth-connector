@@ -74,6 +74,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                     else firstCode
                 } else
                     if (affCode.startsWith("4")) "400"
+                    else if (affCode.startsWith("9") && invoiceSender.isRestHome) "685"
                     else firstCode
             }
         } else {
