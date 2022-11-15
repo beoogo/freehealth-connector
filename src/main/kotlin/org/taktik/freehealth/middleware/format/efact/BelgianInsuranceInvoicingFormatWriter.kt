@@ -698,6 +698,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         }
         else {
             ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+            ws.write("55", "+00000000000")
         }
         ws.write("20", (if(magneticInvoice) "00000000" else formattedCreationDate))
         ws.write("22", admissionEndTime ?: 0)
@@ -747,15 +748,15 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("28", invoicingYear!! * 100 + invoicingMonth!!)
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("19", "+00000000000")
-            ws.write("55", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
-            ws.write("53", sender.bic)
             ws.write("45", sender.iban)
+            ws.write("53", sender.bic)
+            ws.write("55", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
         }
         else { // Use IBAN/BIC A
             ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
             ws.write("31", sender.bic)
             ws.write("36", sender.iban)
-
+            ws.write("55", "+00000000000")
         }
 
         var cs = BigInteger.ZERO
