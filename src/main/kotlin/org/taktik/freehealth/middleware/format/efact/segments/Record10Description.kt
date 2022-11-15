@@ -68,7 +68,7 @@ object Record10Description : RecordOrSegmentDescription() {
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "44", "Reserve", null, "N", pos, 4)
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "45,46,47a", "IbanCompteFinancierCPartie1_2_3et4", "iban3", "A", pos, 34)
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "47b", "Reserve", null, "N", pos, 1)
-        pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "48", "Reserve", null, "N", pos, 1)
+        pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "48", "Indication Region", null, "N", pos, 1)
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "49,50,51,52", "IbanCompteFinancierBPartie1_2_3et4", "iban2", "A", pos, 34)
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "53,54a", "BicCompteFinancierC", "bic3", "A", pos, 11)
         pos = register(ZONE_DESCRIPTIONS_BY_ZONE, "54b", "Reserve", null, "N", pos, 5)

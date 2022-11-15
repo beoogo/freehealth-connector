@@ -74,6 +74,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                     else firstCode
                 } else
                     if (affCode.startsWith("4")) "400"
+                    else if (affCode.startsWith("9") && invoiceSender.isRestHome) "685"
                     else firstCode
             }
         } else {
@@ -153,7 +154,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
     }
 
     @Throws(IOException::class)
-    fun write400(oa: String, numericalRef: Long?, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
+    fun write400(
+        sender: InvoiceSender,
+        oa: String,
+        numericalRef: Long?,
+        recordsCount: Long,
+        codesNomenclature: List<Long>,
+        amount: Long
+    ) {
         val ws = WriterSession(writer, Segment400Record95Description)
 
         val creationDate = LocalDateTime.now()
@@ -173,8 +181,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("4011", 0)
         ws.write("402", numericalRef!!)
         ws.write("4021", 0)
-        ws.write("403", if (amount >= 0) "+" else "-")
-        ws.write("404", Math.abs(amount))
+        if (sender.isRestHome) { // Amount A
+            ws.write("403", "+")
+            ws.write("404", 0)
+        }
+        else {
+            ws.write("403", if (amount >= 0) "+" else "-")
+            ws.write("404", Math.abs(amount))
+        }
         ws.write("4041", 0)
         ws.write("405", "+")
         ws.write("406", 0)
@@ -186,15 +200,21 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("4091", 0)
         ws.write("410", modulo)
         ws.write("4101", 0)
-        ws.write("411", "+")
-        ws.write("412", 0)
+        if (sender.isRestHome) { // Amount C
+            ws.write("411", if (amount >= 0) "+" else "-")
+            ws.write("412", Math.abs(amount))
+        }
+        else {
+            ws.write("411", "+")
+            ws.write("412", 0)
+        }
         ws.write("413", "")
 
         ws.writeFieldsWithoutCheckSum()
     }
 
     @Throws(IOException::class)
-    fun write960000(oa: String, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
+    fun write960000(sender: InvoiceSender, oa: String, recordsCount: Long, codesNomenclature: List<Long>, amount: Long) {
         val ws = WriterSession(writer, Segment500Record96Description)
 
         val creationDate = LocalDateTime.now()
@@ -214,21 +234,35 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("5011", 0)
         ws.write("502", 0)
         ws.write("5021", 0)
-        ws.write("503", if (amount >= 0) "+" else "-")
-        ws.write("504", Math.abs(amount))
+        if (sender.isRestHome) { // Amount A
+            ws.write("503", "+")
+            ws.write("504", 0)
+        }
+        else {
+            ws.write("503", if (amount >= 0) "+" else "-")
+            ws.write("504", Math.abs(amount))
+        }
         ws.write("5041", 0)
         ws.write("505", "+")
         ws.write("506", 0)
         ws.write("5061", 0)
+        // Amount A+B+C
         ws.write("507", if (amount >= 0) "+" else "-")
         ws.write("508", Math.abs(amount))
+
         ws.write("5081", 0)
         ws.write("509", recordsCount)
         ws.write("5091", 0)
         ws.write("510", modulo)
         ws.write("5101", 0)
-        ws.write("511", "+")
-        ws.write("512", 0)
+        if (sender.isRestHome) { // Amount C
+            ws.write("511", if (amount >= 0) "+" else "-")
+            ws.write("512", Math.abs(amount))
+        }
+        else {
+            ws.write("511", "+")
+            ws.write("512", 0)
+        }
         ws.write("513", "")
 
         ws.writeFieldsWithoutCheckSum()
@@ -245,7 +279,6 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                         invoiceContent: Int? = 40): Int {
 
         val ws = WriterSession(writer, Record10Description)
-        val nf34 = DecimalFormat("0000000000000000000000000000000000")
 
         val creationDate = LocalDateTime.now()
         val formattedCreationDate = creationDate.format(dtf)
@@ -264,12 +297,13 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         if (sender.isRestHome) { // Use IBAN/BIC C
             ws.write("53", sender.bic)
             ws.write("45", sender.iban)
-            ws.write("36", nf34.format(0))
         }
         else { // Use IBAN/BIC A
             ws.write("31", sender.bic)
             ws.write("36", sender.iban)
         }
+        ws.write("48", if (sender.isRestHome) 4 else 0) // Brussels GGC or federal
+
         ws.writeFieldsWithCheckSum()
 
         return recordNumber+1
@@ -327,15 +361,14 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         ws.write("4", admissionStartTime ?: 0)
         ws.write("5", admissionStartDate ?: 0)
-        ws.write("6a", (admissionEndDate ?: 0) / 10_000)
-        ws.write("6b", (admissionEndDate ?: 0) % 10_000)
+        ws.write("6a", admissionEndDate ?: 0)
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
         ws.write("10", invoiceType)
         ws.write("11", if (relatedInvoiceNumber == null) 0 else { if(!creditNote) 1 else 3 })
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
-        if (sender.isRestHome) {
+        if (sender.isRestHome) { // NIHII of stay
             ws.write("15", sender.nihii.toString().padEnd(11, '0'))
         }
         ws.write("16", if (ignorePrescriptionDate) 1 else 0)
@@ -347,7 +380,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         ws.write("18", destCode)
         ws.write("20", startOfCoveragePeriod)
-        ws.write("22", admissionEndTime)
+        ws.write("22", admissionEndTime ?: 0)
         ws.write("24", invoiceNumber)
         ws.write("27", ct1 * 1000 + ct2)
         ws.write("29", relatedInvoiceNumber)
@@ -401,10 +434,10 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
         ws.write("10", 0)
-        ws.write("11", 0)
+        ws.write("11", if (sender.isRestHome) 3 else 0) // Account 3 = C, 0 = A
         ws.write("13", 990)
-        ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0)
-        ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber)
+        ws.write("14", if (sender.isMedicalHouse || sender.isRestHome) sender.nihii else 0) // NIHII of stay
+        ws.write("15", if (sender.isRestHome) sender.nihii else icd.doctorIdentificationNumber) // NIHII of stay
         ws.write("17", 0)
         ws.write("19", (if (icd.reimbursedAmount >= 0) "+" else "-") + nf11.format(abs(icd.reimbursedAmount)))
         ws.write("22", (if (icd.nbDays >= 0) "+" else "-") + nf4.format(abs(icd.nbDays)))
@@ -472,11 +505,13 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == null || patient.gender == Gender.male) 1 else 2)
+        ws.write("11", if (sender.isRestHome) 3 else 0) // Account 3=C / 0=A
         ws.write("12", (icd.timeOfDay?: InvoicingTimeOfDay.Other).code)
         ws.write("13",990)
 
-        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", sender.nihii)
+        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", sender.nihii) // NIHII of stay
 
+        // Identification of dispenser
         ws.write("15",
             when {
                 sender.isMedicalHouse && icd.codeNomenclature == 109594L -> sender.nihii
@@ -484,10 +519,10 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                 else -> icd.doctorIdentificationNumber
             }
         )
-
+        // Norm dispenser
         ws.write("16",
                  when {
-                     sender.isRestHome || sender.isMedicalHouse && icd.codeNomenclature != 109594L -> 0
+                     sender.isRestHome || sender.isMedicalHouse && icd.codeNomenclature != 109594L -> 0 // No dispenser in 15
                      icd.gnotionNihii?.isNotEmpty() == true -> 4
                      icd.internshipNihii?.isNotEmpty() == true -> 5
                      else -> 1
@@ -649,7 +684,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", affCode)
         ws.write("8a", noSIS)
         ws.write("9", if (patient.gender == Gender.male) 1 else 2)
-        ws.write("10", if (sender.isRestHome) 4 else 3)
+        ws.write("10", if (sender.isRestHome) 4 else 3) // Bill type
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
         ws.write("15", "+00000000000")
 
@@ -657,9 +692,16 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         val destCode = getDestCode(insuranceCode, sender)
 
         ws.write("18", destCode)
-        ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+        if (sender.isRestHome) {
+            ws.write("19", "+00000000000") // Amount A
+            ws.write("55", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount))) // Amount C
+        }
+        else {
+            ws.write("19", (if (amount >= 0) "+" else "-") + nf11.format(Math.abs(amount)))
+            ws.write("55", "+00000000000")
+        }
         ws.write("20", (if(magneticInvoice) "00000000" else formattedCreationDate))
-        ws.write("22", admissionEndTime)
+        ws.write("22", admissionEndTime ?: 0)
         ws.write("24", invoiceNumber)
         ws.write("27", (if (fee >= 0) "+" else "-") + nf9.format(Math.abs(fee)))
         ws.write("28", invoiceRef)
@@ -688,7 +730,6 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                         codesNomenclature: List<Long>,
                         amount: Long?): Int {
         val ws = WriterSession(writer, Record90Description)
-        val nf34 = DecimalFormat("0000000000000000000000000000000000")
 
         val creationDate = LocalDateTime.now()
         val formattedCreationDate = creationDate.format(dtf)
@@ -701,19 +742,21 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("7", sendingNumber)
         ws.write("14", sender.nihii.toString().padEnd(11, '0'))
         ws.write("15", "+00000000000")
-        ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
         ws.write("22", invoicingYear)
         ws.write("23", invoicingMonth)
         ws.write("27", sender.bce)
         ws.write("28", invoicingYear!! * 100 + invoicingMonth!!)
         if (sender.isRestHome) { // Use IBAN/BIC C
-            ws.write("53", sender.bic)
+            ws.write("19", "+00000000000")
             ws.write("45", sender.iban)
-            ws.write("36", nf34.format(0))
+            ws.write("53", sender.bic)
+            ws.write("55", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
         }
         else { // Use IBAN/BIC A
+            ws.write("19", (if ((amount ?: 0) >= 0) "+" else "-") + nf.format(Math.abs(amount!!)))
             ws.write("31", sender.bic)
             ws.write("36", sender.iban)
+            ws.write("55", "+00000000000")
         }
 
         var cs = BigInteger.ZERO
