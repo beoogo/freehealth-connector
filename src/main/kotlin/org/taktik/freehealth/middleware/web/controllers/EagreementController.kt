@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.taktik.connector.business.domain.agreement.EAgreementResponse
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import org.taktik.freehealth.middleware.exception.MissingTokenException
 import org.taktik.freehealth.middleware.service.EagreementService
 import org.taktik.freehealth.middleware.service.impl.EagreementServiceImpl
@@ -54,6 +55,7 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestHeader(name = "X-FHC-keystoreId") keystoreId: UUID,
         @RequestHeader(name = "X-FHC-tokenId") tokenId: UUID,
         @RequestHeader(name = "X-FHC-passPhrase") passPhrase: String,
+        @RequestHeader(name = "X-FHC-platform", defaultValue = "WALCARENET") platform: CarenetPlatform,
         @RequestParam hcpQuality: String,
         @RequestParam hcpNihii: String,
         @RequestParam hcpSsin: String,
@@ -77,57 +79,51 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) organizationType: String?,
         @RequestParam(required = false) agreementStartDate: Int?,
         @RequestParam(required = false) agreementEndDate: Int?,
-        @RequestParam(required = false) agreementType: String?,
+        @RequestParam agreementType: String,
         @RequestParam(required = false) numberOfSessionForPrescription1: Float?,
         @RequestParam(required = false) numberOfSessionForPrescription2: Float?,
         @RequestBody(required = false) attachments: List<Attachment>?
     ): EAgreementResponse? {
         val formatter = org.joda.time.format.DateTimeFormat.forPattern("yyyyMMdd")
-        try{
-            return eagreementService.askAgreement(
-                keystoreId = keystoreId,
-                tokenId = tokenId,
-                passPhrase = passPhrase,
-                requestType = EagreementServiceImpl.RequestTypeEnum.ASK,
-                hcpQuality = hcpQuality,
-                messageEventSystem = EagreementServiceImpl.MessageEventSystemEnum.MESSAGE_EVENTS,
-                messageEventCode = "claim-ask",
-                patientFirstName = patientFirstName,
-                patientLastName = patientLastName,
-                patientGender = patientGender,
-                patientSsin = patientSsin,
-                patientIo = patientIo,
-                patientIoMembership = patientIoMembership,
-                pathologyStartDate = pathologyStartDate?.let { formatter.parseDateTime(it.toString()) },
-                pathologyCode = pathologyCode,
-                insuranceRef = null,
-                hcpNihii = hcpNihii,
-                hcpSsin = hcpSsin,
-                hcpFirstName = hcpFirstName,
-                hcpLastName = hcpLastName,
-                prescriberNihii = prescriberNihii,
-                prescriberFirstName = prescriberFirstName,
-                prescriberLastName = prescriberLastName,
-                orgNihii = orgNihii,
-                organizationType = organizationType,
-                prescription1 = attachments?.find { it.type == "prescription1" }?.data,
-                prescription2 = attachments?.find { it.type == "prescription2" }?.data,
-                agreementStartDate = if (agreementStartDate != null ) formatter.parseDateTime(agreementStartDate.toString()) else null,
-                agreementEndDate = if (agreementEndDate != null) formatter.parseDateTime(agreementEndDate.toString()) else null,
-                agreementType = agreementType,
-                numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
-                numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
-                sctCode = sctCode,
-                prescriptionDate = prescriptionDate?.let { formatter.parseDateTime(it.toString()) },
-                sctDisplay = sctDisplay,
-                attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
-            )
-
-        }
-        catch (e: Exception) {
-            System.err.println(e.message);
-        }
-        return null
+        return eagreementService.askAgreement(
+            keystoreId = keystoreId,
+            tokenId = tokenId,
+            passPhrase = passPhrase,
+            platform = platform,
+            requestType = EagreementServiceImpl.RequestTypeEnum.ASK,
+            hcpQuality = hcpQuality,
+            messageEventSystem = EagreementServiceImpl.MessageEventSystemEnum.MESSAGE_EVENTS,
+            messageEventCode = "claim-ask",
+            patientFirstName = patientFirstName,
+            patientLastName = patientLastName,
+            patientGender = patientGender,
+            patientSsin = patientSsin,
+            patientIo = patientIo,
+            patientIoMembership = patientIoMembership,
+            pathologyStartDate = pathologyStartDate?.let { formatter.parseDateTime(it.toString()) },
+            pathologyCode = pathologyCode,
+            insuranceRef = null,
+            hcpNihii = hcpNihii,
+            hcpSsin = hcpSsin,
+            hcpFirstName = hcpFirstName,
+            hcpLastName = hcpLastName,
+            prescriberNihii = prescriberNihii,
+            prescriberFirstName = prescriberFirstName,
+            prescriberLastName = prescriberLastName,
+            orgNihii = orgNihii,
+            organizationType = organizationType,
+            prescription1 = attachments?.find { it.type == "prescription1" }?.data,
+            prescription2 = attachments?.find { it.type == "prescription2" }?.data,
+            agreementStartDate = if (agreementStartDate != null ) formatter.parseDateTime(agreementStartDate.toString()) else null,
+            agreementEndDate = if (agreementEndDate != null) formatter.parseDateTime(agreementEndDate.toString()) else null,
+            agreementType = agreementType,
+            numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
+            numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
+            sctCode = sctCode,
+            prescriptionDate = prescriptionDate?.let { formatter.parseDateTime(it.toString()) },
+            sctDisplay = sctDisplay,
+            attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
+        )
     }
 
     @PostMapping("/consultList", produces = [MediaType.APPLICATION_JSON_UTF8_VALUE])
@@ -135,6 +131,7 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestHeader(name = "X-FHC-keystoreId") keystoreId: UUID,
         @RequestHeader(name = "X-FHC-tokenId") tokenId: UUID,
         @RequestHeader(name = "X-FHC-passPhrase") passPhrase: String,
+        @RequestHeader(name = "X-FHC-platform", defaultValue = "MYCARENET") platform: CarenetPlatform,
         @RequestParam hcpQuality: String,
         @RequestParam hcpNihii: String,
         @RequestParam hcpName: String,
@@ -153,13 +150,14 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) organizationType: String?,
         @RequestParam(required = false) agreementStartDate: Int?,
         @RequestParam(required = false) agreementEndDate: Int?,
-        @RequestParam(required = false) agreementType: String?
+        @RequestParam agreementType: String
     ): EAgreementResponse? {
         val formatter = org.joda.time.format.DateTimeFormat.forPattern("yyyyMMdd")
         return eagreementService.consultAgreementList(
             keystoreId = keystoreId,
             tokenId = tokenId,
             passPhrase = passPhrase,
+            platform = platform,
             requestType = EagreementServiceImpl.RequestTypeEnum.CONSULT_LIST,
             hcpQuality = hcpQuality,
             messageEventSystem = EagreementServiceImpl.MessageEventSystemEnum.INTERACTION,

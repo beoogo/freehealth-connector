@@ -422,7 +422,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         )
     }
 
-    override fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, pathologyDate: DateTime, pathologyCode: String?, sequenceNumber: Int): ClaimItem {
+    override fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, pathologyDate: DateTime?, pathologyCode: String?, sequenceNumber: Int): ClaimItem {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
         return ClaimItem(
             sequence = sequenceNumber,
@@ -435,7 +435,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 )
             )
         ).apply {
-            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK) servicedDate = formatter.print(pathologyDate)
+            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK && pathologyDate != null) servicedDate = formatter.print(pathologyDate)
         }
     }
 
@@ -565,7 +565,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         prescription2: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?,
+        agreementType: String,
         numberOfSessionForPrescription1: Float?,
         numberOfSessionForPrescription2: Float?,
         insuranceRef: String?,
@@ -756,7 +756,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             val claim = this.getClaim(
                 requestType,
                 claimId = "1",
-                subTypeCode = agreementType!!,
+                subTypeCode = agreementType,
                 agreementStartDate = agreementStartDate,
                 insuranceRef = insuranceRef,
                 pathologyCode = pathologyCode,

@@ -40,6 +40,7 @@ import org.taktik.connector.technical.utils.ConnectorXmlUtils
 import org.taktik.connector.technical.utils.IdentifierType
 import org.taktik.connector.technical.utils.MarshallerHelper
 import org.taktik.freehealth.middleware.dao.User
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import org.taktik.freehealth.middleware.dto.mycarenet.CommonOutput
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
 import org.taktik.freehealth.middleware.exception.MissingTokenException
@@ -91,6 +92,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         keystoreId: UUID,
         tokenId: UUID,
         passPhrase: String,
+        platform: CarenetPlatform,
         requestType: RequestTypeEnum,
         hcpQuality: String,
         messageEventSystem: MessageEventSystemEnum,
@@ -117,7 +119,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         prescription2: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?,
+        agreementType: String,
         numberOfSessionForPrescription1: Float?,
         numberOfSessionForPrescription2: Float?,
         sctCode: String?,
@@ -257,7 +259,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
             }
 
             try {
-                val agreementResponse: AskAgreementResponse? =freehealthAgreementService.askAgreement(samlToken, ObjectFactory().createAskAgreementRequest(askAgreementRequest).value)
+                val agreementResponse: AskAgreementResponse? =freehealthAgreementService.askAgreement(samlToken, platform, ObjectFactory().createAskAgreementRequest(askAgreementRequest).value)
 
                 val blobType = agreementResponse?.`return`?.detail
                 val blob = BlobMapper.mapBlobfromBlobType(blobType!!)
@@ -302,6 +304,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         keystoreId: UUID,
         tokenId: UUID,
         passPhrase: String,
+        platform: CarenetPlatform,
         requestType: RequestTypeEnum,
         hcpQuality: String,
         messageEventSystem: MessageEventSystemEnum,
@@ -322,7 +325,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         organizationType: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?
+        agreementType: String
     ): EAgreementResponse? {
         val samlToken =
             stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
@@ -443,7 +446,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
             }
 
             try {
-                val consultAgreementResponse: ConsultAgreementResponse? = freehealthAgreementService.consultAgreement(samlToken, ObjectFactory().createConsultAgreementRequest(consultAgreementRequest).value)
+                val consultAgreementResponse: ConsultAgreementResponse? = freehealthAgreementService.consultAgreement(samlToken, platform, ObjectFactory().createConsultAgreementRequest(consultAgreementRequest).value)
 
                 val blobType = consultAgreementResponse?.`return`?.detail
                 val blob = BlobMapper.mapBlobfromBlobType(blobType!!)
@@ -535,11 +538,13 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
 
     private fun convertElement(jsonElement: JsonElement, elementName: String): String? {
         // Cas de base : si l'élément est une primitive ou null, retourner sa représentation en chaîne
-        if (jsonElement.isJsonNull) {
-            return String.format("<%s />", elementName)
-        } else if (jsonElement.isJsonPrimitive) {
+        if (jsonElement.isJsonPrimitive) {
             return String.format("<%s>%s</%s>", elementName, jsonElement.asString, elementName)
-        } else if (jsonElement.isJsonObject) {
+        }
+        else if (jsonElement.isJsonNull) {
+            return String.format("<%s/>", elementName)
+        }
+        else if (jsonElement.isJsonObject) {
             val elementBuilder = java.lang.StringBuilder()
             elementBuilder.append(String.format("<%s>", elementName))
             val jsonObject = jsonElement.asJsonObject
@@ -583,7 +588,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         organizationType: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?
+        agreementType: String
     ): JsonObject?{
         return this.agreementServiceUtils.getBundleJSON(requestType, "Parameters/Parameters1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, null, null, null, orgNihii, organizationType, null, null, agreementStartDate, agreementEndDate, agreementType, null, null, insuranceRef, null, null, null, null, subTypeCode, attachments = null, prescriptionDate = null) ?: throw IllegalArgumentException("Cannot load fhir")
     }

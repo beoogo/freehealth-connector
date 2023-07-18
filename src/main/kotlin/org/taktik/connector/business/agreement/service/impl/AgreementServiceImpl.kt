@@ -14,6 +14,7 @@ import org.taktik.connector.technical.exception.TechnicalConnectorException
 import org.taktik.connector.technical.exception.TechnicalConnectorExceptionValues
 import org.taktik.connector.technical.service.sts.security.SAMLToken
 import org.taktik.connector.technical.utils.impl.JaxbContextFactory
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import javax.xml.bind.JAXBElement
 import javax.xml.soap.SOAPException
 
@@ -23,9 +24,9 @@ class AgreementServiceImpl : AgreementService, ModuleBootstrapHook {
     }
 
     @Throws(TechnicalConnectorException::class)
-    override fun askAgreement(samlToken: SAMLToken, askAgreementRequest: AskAgreementRequest?): AskAgreementResponse? {
+    override fun askAgreement(samlToken: SAMLToken, platform: CarenetPlatform, askAgreementRequest: AskAgreementRequest?): AskAgreementResponse? {
         try {
-            val service = ServiceFactory.getAgreementPort(samlToken)
+            val service = ServiceFactory.getAgreementPort(samlToken, platform)
             service.setPayload(askAgreementRequest as Any)
             service.setSoapAction("urn:be:fgov:ehealth:mycarenet:agreement:protocol:v1:AskAgreement")
             val start = System.currentTimeMillis()
@@ -44,9 +45,9 @@ class AgreementServiceImpl : AgreementService, ModuleBootstrapHook {
     }
 
     @Throws(TechnicalConnectorException::class)
-    override fun consultAgreement(samlToken: SAMLToken, consultAgreementRequest: ConsultAgreementRequest?): ConsultAgreementResponse? {
+    override fun consultAgreement(samlToken: SAMLToken, platform: CarenetPlatform, consultAgreementRequest: ConsultAgreementRequest?): ConsultAgreementResponse? {
         try {
-            val service = ServiceFactory.getAgreementPort(samlToken)
+            val service = ServiceFactory.getAgreementPort(samlToken, platform)
             service.setPayload(consultAgreementRequest as Any)
             service.setSoapAction("urn:be:fgov:ehealth:mycarenet:agreement:protocol:v1:ConsultAgreement")
             val start = System.currentTimeMillis()
@@ -67,12 +68,13 @@ class AgreementServiceImpl : AgreementService, ModuleBootstrapHook {
     @Throws(TechnicalConnectorException::class)
     private fun <T : SendRequestType?, K : SendResponseType?> callAgreementService(
         token: SAMLToken?,
+        platform: CarenetPlatform,
         request: T,
         soapAction: String,
         responseClass: Class<K>
     ): K {
         return try {
-            val service = ServiceFactory.getAgreementPort(token)
+            val service = ServiceFactory.getAgreementPort(token, platform)
             service.setSoapAction(soapAction)
             service.setPayload(request)
             val xmlResponse = org.taktik.connector.technical.ws.ServiceFactory.getGenericWsSender().send(service)

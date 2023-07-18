@@ -75,7 +75,7 @@ interface EagreementServiceUtils {
 
     fun getBillablePeriod(startDate: DateTime): Period?
 
-    fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, pathologyDate: DateTime, pathologyCode: String?, sequenceNumber: Int): ClaimItem?
+    fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, pathologyDate: DateTime?, pathologyCode: String?, sequenceNumber: Int): ClaimItem?
 
     fun getCodeItem(code: String): ClaimItem?
 
@@ -109,7 +109,7 @@ interface EagreementServiceUtils {
         prescription2: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?,
+        agreementType: String,
         numberOfSessionForPrescription1: Float?,
         numberOfSessionForPrescription2: Float?,
         insuranceRef: String?,

@@ -2,6 +2,7 @@ package org.taktik.freehealth.middleware.service
 
 import org.joda.time.DateTime
 import org.taktik.connector.business.domain.agreement.EAgreementResponse
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import org.taktik.freehealth.middleware.service.impl.EagreementServiceImpl
 import org.taktik.freehealth.middleware.web.controllers.EagreementController
 import java.util.*
@@ -19,6 +20,7 @@ interface EagreementService {
         keystoreId: UUID,
         tokenId: UUID,
         passPhrase: String,
+        platform: CarenetPlatform,
         requestType: EagreementServiceImpl.RequestTypeEnum,
         hcpQuality: String,
         messageEventSystem: EagreementServiceImpl.MessageEventSystemEnum,
@@ -45,7 +47,7 @@ interface EagreementService {
         prescription2: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?,
+        agreementType: String,
         numberOfSessionForPrescription1: Float?,
         numberOfSessionForPrescription2: Float?,
         sctCode: String?,
@@ -62,6 +64,7 @@ interface EagreementService {
         keystoreId: UUID,
         tokenId: UUID,
         passPhrase: String,
+        platform: CarenetPlatform,
         requestType: EagreementServiceImpl.RequestTypeEnum,
         hcpQuality: String,
         messageEventSystem: EagreementServiceImpl.MessageEventSystemEnum,
@@ -82,7 +85,7 @@ interface EagreementService {
         organizationType: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
-        agreementType: String?
+        agreementType: String
     ): EAgreementResponse?
 
 }
