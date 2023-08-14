@@ -356,7 +356,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                                     }
                                 },
                                 inResponseTo = it.inResponseTo,
-                                issuer = it.issuer.value,
+                                issuer = it.issuer?.value,
                                 responseId = it.id
                             ).apply {
                                 this.myCarenetErrors += extractErrors(status, this.errors)
