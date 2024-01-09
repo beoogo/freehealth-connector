@@ -73,7 +73,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                     else if (Arrays.asList("101", "105", "108", "110", "111", "112", "113", "121", "126", "131").contains(firstCode)) "120"
                     else firstCode
                 } else
-                    if (affCode.startsWith("4")) "400"
+                    if (affCode.startsWith("4")) firstCode
                     else if (affCode.startsWith("9") && invoiceSender.isRestHome) "685"
                     else firstCode
             }
@@ -88,7 +88,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
                 else if (Arrays.asList("101", "105", "108", "110", "111", "112", "113", "121", "126", "131").contains(firstCode)) "120"
                 else firstCode
             } else
-                if (affCode.startsWith("4")) "400"
+                if (affCode.startsWith("4")) firstCode
                 else firstCode
         }
     }
@@ -355,7 +355,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         //Silly rules for this field
         var affCode = insuranceCode
 
-        if (affCode.startsWith("2") || affCode.startsWith("5")) {
+        if (affCode.startsWith("2") || affCode.startsWith("4") || affCode.startsWith("5")) {
             affCode = "000"
         }
 
@@ -677,7 +677,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
 
         var affCode = insuranceCode
 
-        if (affCode.startsWith("2") || affCode.startsWith("5")) {
+        if (affCode.startsWith("2") || affCode.startsWith("4") || affCode.startsWith("5")) {
             affCode = "000"
         }
 
