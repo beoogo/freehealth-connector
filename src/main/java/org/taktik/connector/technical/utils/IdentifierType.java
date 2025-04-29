@@ -38,6 +38,7 @@ public final class IdentifierType implements Serializable {
    public static final IdentifierType NIHII_PROT_ACC = new IdentifierType("NIHII-PROT_ACC", 8);
    public static final IdentifierType NIHII_HOME_SERVICES = new IdentifierType("NIHII-HOME_SERVICES", 8);
    public static final IdentifierType NIHII_OF_PHYSIOS = new IdentifierType("NIHII-OF_PHYSIOS", 8);
+   public static final IdentifierType NIHII_REEDUCATION = new IdentifierType("NIHII-REEDUCATION", 8);
    public static final IdentifierType SITE = new IdentifierType("SITE", 4);
    public static final IdentifierType SITESMUR = new IdentifierType("SITESMUR", 10);
    public static final IdentifierType SITEPIT = new IdentifierType("SITEPIT", 10);
