@@ -485,6 +485,18 @@ class STSServiceImpl(val keystoresMap: IMap<UUID, ByteArray>, val tokensMap: IMa
                     nihiiOrSsin
                 )
             )
+            "reeducation" -> listOf(
+                SAMLAttribute(
+                    "urn:be:fgov:ehealth:1.0:reeducation:nihii-number",
+                    "urn:be:fgov:identification-namespace",
+                    nihiiOrSsin
+                ),
+                SAMLAttribute(
+                    "urn:be:fgov:ehealth:1.0:certificateholder:reeducation:nihii-number",
+                    "urn:be:fgov:identification-namespace",
+                    nihiiOrSsin
+                )
+            )
             else -> listOf(
                 SAMLAttribute(
                     "urn:be:fgov:ehealth:1.0:certificateholder:person:ssin",
