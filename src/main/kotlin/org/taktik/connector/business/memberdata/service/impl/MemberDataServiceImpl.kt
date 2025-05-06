@@ -14,12 +14,13 @@ import be.fgov.ehealth.mycarenet.memberdata.protocol.v1.MemberDataConsultationRe
 import javax.xml.soap.SOAPException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 
 class MemberDataServiceImpl : MemberDataService, ConfigurationModuleBootstrap.ModuleBootstrapHook {
     @Throws(TechnicalConnectorException::class)
-    override fun consultMemberData(token: SAMLToken, request: MemberDataConsultationRequest): MemberDataConsultationResponse {
+    override fun consultMemberData(platform: CarenetPlatform, token: SAMLToken, request: MemberDataConsultationRequest): MemberDataConsultationResponse {
         try {
-            val service = ServiceFactory.getMemberDataSyncPort(token)
+            val service = ServiceFactory.getMemberDataSyncPort(platform, token)
             service.setPayload(request)
             val start = System.currentTimeMillis()
             val xmlResponse = org.taktik.connector.technical.ws.ServiceFactory.getGenericWsSender().send(service)

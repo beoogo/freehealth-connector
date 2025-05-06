@@ -86,6 +86,7 @@ import org.taktik.connector.technical.utils.ConnectorXmlUtils
 import org.taktik.connector.technical.utils.IdentifierType
 import org.taktik.connector.technical.utils.MarshallerHelper
 import org.taktik.freehealth.middleware.dao.User
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import org.taktik.freehealth.middleware.domain.memberdata.*
 import org.taktik.freehealth.middleware.dto.mycarenet.CommonOutput
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
@@ -157,7 +158,8 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         startDate: Instant,
         endDate: Instant,
         passPhrase: String,
-        mdaRequest: MemberDataBatchRequest
+        mdaRequest: MemberDataBatchRequest,
+        platform: CarenetPlatform
     ): GenAsyncResponse {
         val encryptRequest = false
         val samlToken =
@@ -203,7 +205,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
         val blob = unEncryptedQuery.let { aqb ->
             if (encryptRequest) {
-                val keyDepotProvider = KeyDepotProvider.build(samlToken.quality)
+                val keyDepotProvider = KeyDepotProvider.build(platform)
                 val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", keyDepotProvider.identifierType)
                 val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", keyDepotProvider.identifierValue)
                 val applicationId = config.getProperty("memberdata.keydepot.application", keyDepotProvider.application)
@@ -241,7 +243,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         // no xades needed for MDA async
         val post = BuilderFactory.getRequestObjectBuilder("mda")
             .buildPostRequest(ci, SendRequestMapper.mapBlobToCinBlob(blob), null)
-        val postResponse = genAsyncService.postRequest(samlToken, post, postHeader)
+        val postResponse = genAsyncService.postRequest(samlToken, post, postHeader, platform)
         return GenAsyncResponse().apply {
             result = postResponse.`return`.resultMajor == "urn:nip:tack:result:major:success"
             this.tack = postResponse.`return`
@@ -257,7 +259,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         }
     }
 
-    override fun getMemberDataMessages(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, messageNames: List<String>?, reference: String?): MemberDataList? {
+    override fun getMemberDataMessages(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, messageNames: List<String>?, reference: String?, platform: CarenetPlatform): MemberDataList? {
 
         val samlToken = stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
             ?: throw MissingTokenException("Cannot obtain token for MDA operations")
@@ -280,7 +282,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         val originType = buildOriginType(samlToken.quality, hcpNihii, hcpName)
         val get = requestObjectBuilder.buildGetRequest(originType, msgQuery, query, queryParameters);
 
-        val response = genAsyncService.getRequest(samlToken, get, getHeader)
+        val response = genAsyncService.getRequest(samlToken, get, getHeader, platform)
 
         val b64 = Base64.getEncoder()
         val listOfMdaDecryptedResponseContent : ArrayList<String> = arrayListOf()
@@ -405,7 +407,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
     }
 
-    override fun confirmMemberDataMessages(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, mdaMessagesReference: List<String>): Boolean {
+    override fun confirmMemberDataMessages(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, mdaMessagesReference: List<String>, platform: CarenetPlatform): Boolean {
         if (mdaMessagesReference.isEmpty()) {
             return true
         }
@@ -420,12 +422,12 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         confirm.origin = buildOriginType(samlToken.quality, hcpNihii, hcpName)
         confirm.msgRefValues.addAll(mdaMessagesReference)
 
-        genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
+        genAsyncService.confirmRequest(samlToken, confirm, confirmheader, platform)
 
         return true
     }
 
-    override fun confirmMemberDataAcks(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, mdaAcksHashes: List<String>): Boolean {
+    override fun confirmMemberDataAcks(keystoreId: UUID, tokenId: UUID, passPhrase: String, hcpNihii: String, hcpName: String, mdaAcksHashes: List<String>, platform: CarenetPlatform): Boolean {
         if (mdaAcksHashes.isEmpty()) {
             return true
         }
@@ -440,7 +442,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                     listOf(),
                     mdaAcksHashes.map { valueHash -> Base64.getDecoder().decode(valueHash) })
 
-        genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
+        genAsyncService.confirmRequest(samlToken, confirm, confirmheader, platform)
 
         return true
     }
@@ -507,7 +509,8 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         endDate: Instant,
         hospitalized: Boolean?,
         requestType: String?,
-        facets: List<Facet>?
+        facets: List<Facet>?,
+        platform: CarenetPlatform
     ): MemberDataResponse {
         val encryptRequest = true
         validateQuality(hcpQuality)
@@ -600,7 +603,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
 
             this.detail = unEncryptedQuery.let { aqb ->
                 if (encryptRequest) {
-                    val keyDepotProvider = KeyDepotProvider.build(hcpQuality)
+                    val keyDepotProvider = KeyDepotProvider.build(platform)
                     val identifierTypeString = config.getProperty("memberdata.keydepot.identifiertype", keyDepotProvider.identifierType)
                     val identifierValue = config.getLongProperty("memberdata.keydepot.identifiervalue", keyDepotProvider.identifierValue)
                     val applicationId = config.getProperty("memberdata.keydepot.application", keyDepotProvider.application)
@@ -629,7 +632,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         }
         MemberDataXmlValidatorImpl().validate(request)
 
-        val consultMemberData = memberDataService.consultMemberData(samlToken, request)
+        val consultMemberData = memberDataService.consultMemberData(platform, samlToken, request)
         val marshallerHelper = MarshallerHelper(MemberDataConsultationRequest::class.java, MemberDataConsultationRequest::class.java)
         val xmlRequest = marshallerHelper.toXMLByteArray(request)
 

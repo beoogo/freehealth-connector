@@ -30,6 +30,7 @@ import org.taktik.connector.technical.ws.domain.GenericRequest;
 import org.taktik.connector.technical.ws.domain.HandlerChain;
 import org.taktik.connector.technical.ws.domain.HandlerPosition;
 import org.taktik.connector.technical.ws.feature.XOPFeature;
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform;
 
 import javax.xml.soap.SOAPException;
 import java.util.concurrent.TimeUnit;
@@ -46,24 +47,36 @@ public class GenAsyncServiceImpl implements GenAsyncService {
    }
 
    public PostResponse postRequest(SAMLToken token, Post request, WsAddressingHeader header) throws GenAsyncBusinessConnectorException {
+      return postRequest(token, request, header, CarenetPlatform.MYCARENET);
+   }
+
+   public PostResponse postRequest(SAMLToken token, Post request, WsAddressingHeader header, CarenetPlatform platform) throws GenAsyncBusinessConnectorException {
       try {
-         return this.invoke(token, request, header, PostResponse.class);
+         return this.invoke(token, request, header, PostResponse.class, platform);
       } catch (TechnicalConnectorException e) {
          throw new GenAsyncBusinessConnectorException(GenAsyncBusinessConnectorExceptionValues.TARGET_SERVICE_ERROR, e, e.getMessage());
       }
    }
 
    public GetResponse getRequest(SAMLToken token, Get request, WsAddressingHeader header) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
-      return this.invoke(token, request, header, GetResponse.class);
+      return getRequest(token, request, header, CarenetPlatform.MYCARENET);
+   }
+
+   public GetResponse getRequest(SAMLToken token, Get request, WsAddressingHeader header, CarenetPlatform platform) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
+      return this.invoke(token, request, header, GetResponse.class, platform);
    }
 
    public ConfirmResponse confirmRequest(SAMLToken token, Confirm request, WsAddressingHeader header) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
-      return this.invoke(token, request, header, ConfirmResponse.class);
+      return confirmRequest(token, request, header, CarenetPlatform.MYCARENET);
    }
 
-   protected <T> T invoke(SAMLToken token, Object request, WsAddressingHeader header, Class<T> clazz) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
+   public ConfirmResponse confirmRequest(SAMLToken token, Confirm request, WsAddressingHeader header, CarenetPlatform platform) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
+      return this.invoke(token, request, header, ConfirmResponse.class, platform);
+   }
+
+   protected <T> T invoke(SAMLToken token, Object request, WsAddressingHeader header, Class<T> clazz, CarenetPlatform platform) throws GenAsyncBusinessConnectorException, TechnicalConnectorException {
       try {
-         GenericRequest genReq = build(token, this.serviceName);
+         GenericRequest genReq = build(token, this.serviceName, platform);
          genReq.setPayload(request, new XOPFeature(this.threshold));
          genReq.setWSAddressing(header);
          return ServiceFactory.getGenericWsSender().send(genReq).asObject(clazz);
@@ -87,10 +100,10 @@ public class GenAsyncServiceImpl implements GenAsyncService {
       this.threshold = ConfigFactory.getConfigValidator().getIntegerProperty("threshold.genericasync." + this.serviceName + ".v1", 81920);
    }
 
-   protected static GenericRequest build(SAMLToken token, String serviceName) throws TechnicalConnectorException {
+   protected static GenericRequest build(SAMLToken token, String serviceName, CarenetPlatform platform) throws TechnicalConnectorException {
       GenericRequest request = new GenericRequest();
-      if (hasProperty("endpoint.genericasync." + token.getQuality() + ".", serviceName)) {
-         request.setEndpoint(getProperty("endpoint.genericasync." + token.getQuality()  +".", serviceName, true));
+      if (hasProperty("endpoint.genericasync." + platform.name().toLowerCase() + ".", serviceName)) {
+         request.setEndpoint(getProperty("endpoint.genericasync." + platform.name().toLowerCase()  +".", serviceName, true));
       }
       else {
          request.setEndpoint(getProperty("endpoint.genericasync.", serviceName, true));

@@ -1,15 +1,17 @@
 package org.taktik.freehealth.middleware.domain.memberdata
 
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
+
 data class KeyDepotProvider(
     val identifierType: String,
     val identifierValue: Long,
     val application: String
 ) {
     companion object {
-        fun build(quality: String) = when(quality) {
-            "reeducation" -> KeyDepotProvider("CBE", 675597179L, "WALCARENET")
-            "retirementhome" -> KeyDepotProvider("CBE", 787213495L, "IRISCARENET")
-            else -> KeyDepotProvider("CBE", 820563481L, "MYCARENET")
+        fun build(platform: CarenetPlatform) = when(platform) {
+            CarenetPlatform.WALCARENET -> KeyDepotProvider("CBE", 675597179L, "WALCARENET")
+            CarenetPlatform.IRISCARENET -> KeyDepotProvider("CBE", 787213495L, "IRISCARENET")
+            CarenetPlatform.MYCARENET -> KeyDepotProvider("CBE", 820563481L, "MYCARENET")
         }
     }
 }

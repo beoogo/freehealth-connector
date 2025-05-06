@@ -7,6 +7,7 @@ import org.taktik.connector.technical.exception.TechnicalConnectorException
 import org.taktik.connector.technical.service.sts.security.SAMLToken
 import org.taktik.connector.technical.ws.domain.GenericRequest
 import org.taktik.connector.technical.ws.domain.TokenType
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 
 object ServiceFactory {
     private const val PROP_ENDPOINT_MEMBERDATASYNC = "endpoint.memberdata"
@@ -14,10 +15,10 @@ object ServiceFactory {
     private val config: Configuration
 
     @Throws(TechnicalConnectorException::class)
-    fun getMemberDataSyncPort(token: SAMLToken): GenericRequest {
+    fun getMemberDataSyncPort(platform: CarenetPlatform, token: SAMLToken): GenericRequest {
         Validate.notNull(token, "Required parameter SAMLToken is null.")
 
-        val baseUrlKey = "$PROP_ENDPOINT_MEMBERDATASYNC.${token.quality}"
+        val baseUrlKey = "$PROP_ENDPOINT_MEMBERDATASYNC.${platform.name.toLowerCase()}"
         val baseUrl =
             if (config.hasProperty(baseUrlKey))
                 config.getProperty(baseUrlKey, "\$uddi{uddi:ehealth-fgov-be:business:mycarenetmemberdata:v1}")
