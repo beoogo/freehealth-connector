@@ -21,6 +21,7 @@
 package org.taktik.freehealth.middleware.service
 
 import org.taktik.connector.business.domain.common.GenAsyncResponse
+import org.taktik.freehealth.middleware.domain.common.CarenetPlatform
 import org.taktik.freehealth.middleware.domain.memberdata.MemberDataBatchRequest
 import org.taktik.freehealth.middleware.domain.memberdata.MemberDataList
 import org.taktik.freehealth.middleware.domain.memberdata.MemberDataResponse
@@ -29,7 +30,8 @@ import java.time.Instant
 import java.util.UUID
 
 interface MemberDataService {
-    fun getMemberData(keystoreId: UUID,
+    fun getMemberData(
+        keystoreId: UUID,
         tokenId: UUID,
         hcpQuality: String,
         hcpNihii: String,
@@ -43,7 +45,9 @@ interface MemberDataService {
         endDate: Instant,
         hospitalized: Boolean? = null,
         requestType: String?,
-        facets: List<Facet>? = null): MemberDataResponse
+        facets: List<Facet>? = null,
+        platform: CarenetPlatform
+    ): MemberDataResponse
 
     fun sendMemberDataRequest(
         keystoreId: UUID,
@@ -54,8 +58,9 @@ interface MemberDataService {
         startDate: Instant,
         endDate: Instant,
         passPhrase: String,
-        mdaRequest: MemberDataBatchRequest
-                             ): GenAsyncResponse
+        mdaRequest: MemberDataBatchRequest,
+        platform: CarenetPlatform
+    ): GenAsyncResponse
 
     fun getMemberDataMessages(
         keystoreId: UUID,
@@ -64,7 +69,8 @@ interface MemberDataService {
         hcpNihii: String,
         hcpName: String,
         messageNames: List<String>?,
-        reference: String?
+        reference: String?,
+        platform: CarenetPlatform
     ): MemberDataList?
 
     fun confirmMemberDataMessages(
@@ -73,7 +79,8 @@ interface MemberDataService {
         passPhrase: String,
         hcpNihii: String,
         hcpName: String,
-        mdaMessagesReference: List<String>
+        mdaMessagesReference: List<String>,
+        platform: CarenetPlatform
     ): Boolean
 
     fun confirmMemberDataAcks(
@@ -82,6 +89,7 @@ interface MemberDataService {
         passPhrase: String,
         hcpNihii: String,
         hcpName: String,
-        mdaAcksHashes: List<String>
+        mdaAcksHashes: List<String>,
+        platform: CarenetPlatform
     ): Boolean
 }
