@@ -10,6 +10,10 @@ import org.taktik.connector.technical.handler.utils.WSSecurityCrypto;
 import org.taktik.connector.technical.service.sts.security.Credential;
 import org.taktik.connector.technical.service.sts.security.SAMLToken;
 import org.taktik.connector.technical.service.sts.security.impl.SAMLHolderOfKeyToken;
+
+import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -128,13 +132,27 @@ public class WSSecHeaderGeneratorWss4jImpl implements AbstractWsSecurityHandler.
       }
    }
 
-   private void determineSignatureAlgorithm() {
+   private void determineSignatureAlgorithm() throws TechnicalConnectorException {
       if (this.ctx != null && StringUtils.isNotBlank((String)this.ctx.get("signature.method.algorithm"))) {
          this.sign.setSignatureAlgorithm((String)this.ctx.get("signature.method.algorithm"));
       }/* else if (this.ctx != null && this.ctx.get("javax.xml.ws.soap.http.soapaction.uri") != null && ((String) this.ctx.get("javax.xml.ws.soap.http.soapaction.uri")).contains(":recipe:")) {
          this.sign.setSignatureAlgorithm(this.config.getProperty("default.signature.method.algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1"));
       }*/ else {
-         this.sign.setSignatureAlgorithm(this.config.getProperty("default.signature.method.algorithm", "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"));
+         String signatureAlgorithm = this.config.getProperty("default.signature.method.algorithm");
+
+         if (signatureAlgorithm != null) {
+            this.sign.setSignatureAlgorithm(signatureAlgorithm);
+         } else {
+            PrivateKey privateKey = cred.getPrivateKey();
+
+            if (privateKey instanceof RSAPrivateKey) {
+               this.sign.setSignatureAlgorithm("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+            } else if (privateKey instanceof ECPrivateKey) {
+               this.sign.setSignatureAlgorithm("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256");
+            } else {
+               throw new TechnicalConnectorException(TechnicalConnectorExceptionValues.HANDLER_ERROR, "Unsupported key type: " + privateKey.getAlgorithm());
+            }
+         }
       }
    }
 
