@@ -564,7 +564,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                         }
                     }
                     careProvider = CareProviderType().apply {
-                        if ((hcpQuality == "guardpost") || (hcpQuality == "medicalhouse") || (hcpQuality == "retirementhome")) {
+                        if ((hcpQuality == "guardpost") || (hcpQuality == "medicalhouse") || (hcpQuality == "retirementhome") || (hcpQuality == "reeducation")) {
                             // nihii11 is required with guardpost
                             nihii =
                                 NihiiType().apply {
