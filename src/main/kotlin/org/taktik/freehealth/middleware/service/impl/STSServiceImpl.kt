@@ -179,11 +179,11 @@ class STSServiceImpl(val keystoresMap: IMap<UUID, ByteArray>, val tokensMap: IMa
                 ),
                 SAMLAttributeDesignator(
                     "urn:be:fgov:ehealth:1.0:certificateholder:reeducation:nihii-number:recognisedreeducation:boolean",
-                    "urn:be:fgov:certifiednamespace:ehealth"
+                    "urn:be:fgov:certified-namespace:ehealth"
                 ),
                 SAMLAttributeDesignator(
                     "urn:be:fgov:ehealth:1.0:reeducation:nihii-number:recognisedreeducation:nihii11",
-                    "urn:be:fgov:certifiednamespace:ehealth"
+                    "urn:be:fgov:certified-namespace:ehealth"
                 ),
                 SAMLAttributeDesignator(
                     "urn:be:fgov:ehealth:1.0:certificateholder:recognisedorganization:boolean",
