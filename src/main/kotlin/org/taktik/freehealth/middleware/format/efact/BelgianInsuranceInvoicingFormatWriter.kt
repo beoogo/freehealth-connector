@@ -522,7 +522,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         // Norm dispenser
         ws.write("16",
                  when {
-                     sender.isRestHome || sender.isMedicalHouse && icd.codeNomenclature != 109594L && icd.codeNomenclature != 400396L -> 0 // No dispenser in 15
+                     sender.isRestHome || (sender.isMedicalHouse && icd.codeNomenclature != 109594L && icd.codeNomenclature != 400396L && icd.doctorIdentificationNumber.isNullOrBlank()) -> 0 // No dispenser in 15
                      icd.gnotionNihii?.isNotEmpty() == true -> 4
                      icd.internshipNihii?.isNotEmpty() == true -> 5
                      else -> 1
