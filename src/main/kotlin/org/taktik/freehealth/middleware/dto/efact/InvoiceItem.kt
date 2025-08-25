@@ -63,4 +63,6 @@ class InvoiceItem {
     var percentNorm: InvoicingPercentNorm? = null
 
     var internshipNihii: String? = null
+
+    var serviceLocation: String? = null
 }
