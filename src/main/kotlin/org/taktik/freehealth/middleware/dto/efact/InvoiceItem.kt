@@ -64,5 +64,5 @@ class InvoiceItem {
 
     var internshipNihii: String? = null
 
-    var serviceLocation: String? = null
+    var serviceLocation: Long? = null
 }
