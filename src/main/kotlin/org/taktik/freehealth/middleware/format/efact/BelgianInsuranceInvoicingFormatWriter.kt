@@ -509,7 +509,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("12", (icd.timeOfDay?: InvoicingTimeOfDay.Other).code)
         ws.write("13",990)
 
-        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", sender.nihii) // NIHII of stay
+        if (sender.isMedicalHouse || sender.isRestHome) ws.write("14", icd.serviceLocation ?: sender.nihii) // NIHII of stay
 
         // Identification of dispenser
         ws.write("15",
