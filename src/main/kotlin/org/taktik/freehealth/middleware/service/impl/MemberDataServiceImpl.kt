@@ -461,7 +461,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                 name = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = packageInfo.packageName }
             }
             careProvider = be.cin.mycarenet.esb.common.v2.CareProviderType().apply {
-                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse" || hcpQuality == "retirementhome") {
+                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse" || hcpQuality == "retirementhome" || hcpQuality == "reeducation") {
                     nihii =
                         be.cin.mycarenet.esb.common.v2.NihiiType().apply {
                             quality = hcpQuality
