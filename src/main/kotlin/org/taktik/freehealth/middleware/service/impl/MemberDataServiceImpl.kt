@@ -267,6 +267,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         val credential = KeyStoreCredential(keystoreId, keystore, "authentication", passPhrase, samlToken.quality)
         val hokPrivateKeys = KeyManager.getDecryptionKeys(keystore, passPhrase.toCharArray())
         val crypto = CryptoFactory.getCrypto(credential, hokPrivateKeys)
+        val replyToEtk = keyDepotManager.getETK(credential, keystoreId)?.encoded
 
         val getHeader = WsAddressingHeader(URI("urn:be:cin:nip:async:generic:get:query")).apply {
             faultTo = "http://www.w3.org/2005/08/addressing/anonymous"
@@ -280,7 +281,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
         val query = requestObjectBuilder.createQuery(100, true)
         val queryParameters = if (reference != null) QueryParameters().apply { this.reference = reference } else null
         val originType = buildOriginType(samlToken.quality, hcpNihii, hcpName)
-        val get = requestObjectBuilder.buildGetRequest(originType, msgQuery, query, queryParameters);
+        val get = requestObjectBuilder.buildGetRequest(originType, msgQuery, query, queryParameters, replyToEtk);
 
         val response = genAsyncService.getRequest(samlToken, get, getHeader, platform)
 
@@ -461,7 +462,7 @@ class MemberDataServiceImpl(val stsService: STSService, keyDepotService: KeyDepo
                 name = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = packageInfo.packageName }
             }
             careProvider = be.cin.mycarenet.esb.common.v2.CareProviderType().apply {
-                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse" || hcpQuality == "retirementhome") {
+                if (hcpQuality == "guardpost" || hcpQuality == "medicalhouse" || hcpQuality == "retirementhome" || hcpQuality == "reeducation") {
                     nihii =
                         be.cin.mycarenet.esb.common.v2.NihiiType().apply {
                             quality = hcpQuality
