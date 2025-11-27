@@ -541,7 +541,7 @@ class BelgianInsuranceInvoicingFormatWriter(private val writer: Writer) {
         ws.write("32", icd.override3rdPayerCode?. let { if (it >= 0) it else 0 } ?: 0)
         ws.write("33", icd.personalInterventionCoveredByThirdPartyCode?. let { if (it >= 0) it else 0 } ?: 0)//MAF Zone 33 todo //Mettre 1 si a charge du medecin
         ws.write("34", (icd.sideCode?: InvoicingSideCode.None).code)
-        ws.write("35", sender.conventionCode)
+        ws.write("35", (icd.conventionCode ?: sender.conventionCode ?: InvoicingConventionCode.None).code)
         ws.write("44", icd.productLabel)
         //47 conditional: before 01/07/2019 0000000, after 01/07/2019 +0000000
         ws.write("47",
