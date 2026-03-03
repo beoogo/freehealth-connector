@@ -1,27 +1,18 @@
 package org.taktik.freehealth.middleware.service.impl
 
-import be.fgov.ehealth.schematron.utils.XmlUtils
-import be.fgov.ehealth.standards.kmehr.schema.v1.Kmehrmessage
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.junit.Test
-import org.junit.runner.RunWith
 
 import org.junit.jupiter.api.Assertions.*
 import org.taktik.icure.fhir.entities.r4.coding.Coding
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.DateTime
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
-import org.taktik.connector.technical.utils.ConnectorXmlUtils
-import org.taktik.connector.technical.utils.MarshallerHelper
-import org.taktik.freehealth.middleware.service.AgreementServiceUtils
 import org.taktik.icure.fhir.entities.r4.practitionerrole.PractitionerRole
-import org.taktik.icure.fhir.entities.r4.reference.Reference
 
-class AgreementServiceUtilsTest {
+class EagreementServiceUtilsTest {
 
-    val agreementServiceUtils = AgreementServiceUtilsImpl()
+    val agreementServiceUtils = EagreementServiceUtilsImpl()
     @Test
     fun getPractitionerRole() {
 
@@ -388,6 +379,41 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getBundle() {
-
+        val claim = agreementServiceUtils.getClaim(
+            "1",
+            "active",
+            "physiotherapy-fb",
+            DateTime.now(),
+            "InsuranceRef123",
+            "PathologyCode123",
+            DateTime.now().plusDays(1),
+            "PractitionerRole/PractitionerRole1"
+        )
+        val bundle = agreementServiceUtils.getBundle(
+            EagreementServiceImpl.RequestTypeEnum.ASK,
+            claim,
+            "",
+            "",
+            "Wathelet",
+            "Julien",
+            "male",
+            "97124587451",
+            null,
+            null,
+            "12341524124",
+            "Mennechet",
+            "Maxime",
+            "484644645489",
+            "hospital",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            1f,
+            1f
+            );
+        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(bundle))
     }
 }
