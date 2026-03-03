@@ -17,7 +17,6 @@ import org.taktik.connector.business.domain.agreement.AgreementResponse
 import org.taktik.freehealth.middleware.exception.MissingTokenException
 import org.taktik.freehealth.middleware.service.EagreementService
 import org.taktik.freehealth.middleware.service.impl.EagreementServiceImpl
-import org.w3._2005._05.xmlmime.Base64Binary
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 
@@ -71,13 +70,11 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) patientIoMembership: String?,
         @RequestParam(required = false) orgNihii: String?,
         @RequestParam(required = false) organizationType: String?,
-        @RequestParam(required = false) annex1: String?,
-        @RequestParam(required = false) annex2: String?,
         @RequestParam(required = false) agreementStartDate: Int?,
         @RequestParam(required = false) agreementEndDate: Int?,
         @RequestParam(required = false) agreementType: String?,
-        @RequestParam(required = false) numberOfSessionForAnnex1: Float?,
-        @RequestParam(required = false) numberOfSessionForAnnex2: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription1: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription2: Float?,
         @RequestBody(required = false) attachments: List<Attachment>?
     ): AgreementResponse? {
         val formatter = org.joda.time.format.DateTimeFormat.forPattern("yyyyMMdd")
@@ -104,16 +101,16 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpLastName = hcpLastName,
             orgNihii = orgNihii,
             organizationType = organizationType,
-            annex1 = annex1,
-            annex2 = annex2,
+            prescription1 = attachments?.find { it.type == "prescription1" }?.data,
+            prescription2 = attachments?.find { it.type == "prescription2" }?.data,
             agreementStartDate = if(agreementStartDate != null ) formatter.parseDateTime(agreementStartDate.toString()) else null,
             agreementEndDate = if(agreementEndDate != null) formatter.parseDateTime(agreementEndDate.toString()) else null,
             agreementType = agreementType,
-            numberOfSessionForAnnex1 = numberOfSessionForAnnex1,
-            numberOfSessionForAnnex2 = numberOfSessionForAnnex2,
+            numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
+            numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
             sctCode = sctCode,
             sctDisplay = sctDisplay,
-            attachments = attachments
+            attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
         )
     }
 
@@ -217,13 +214,13 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpLastName = hcpLastName,
             orgNihii = orgNihii,
             organizationType = organizationType,
-            annex1 = null,
-            annex2 = null,
+            prescription1 = null,
+            prescription2 = null,
             agreementStartDate = null,
             agreementEndDate = null,
             agreementType = agreementType,
-            numberOfSessionForAnnex1 = null,
-            numberOfSessionForAnnex2 = null,
+            numberOfSessionForPrescription1 = null,
+            numberOfSessionForPrescription2 = null,
             sctCode = null,
             sctDisplay = null,
             attachments = null
@@ -254,13 +251,11 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) patientIoMembership: String?,
         @RequestParam(required = false) orgNihii: String?,
         @RequestParam(required = false) organizationType: String?,
-        @RequestParam(required = false) annex1: String?,
-        @RequestParam(required = false) annex2: String?,
         @RequestParam(required = false) agreementStartDate: Int?,
         @RequestParam(required = false) agreementEndDate: Int?,
         @RequestParam(required = false) agreementType: String?,
-        @RequestParam(required = false) numberOfSessionForAnnex1: Float?,
-        @RequestParam(required = false) numberOfSessionForAnnex2: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription1: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription2: Float?,
         @RequestBody(required = false) attachments: List<Attachment>?
     ): AgreementResponse? {
         val formatter = org.joda.time.format.DateTimeFormat.forPattern("yyyyMMdd")
@@ -287,16 +282,16 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpLastName = hcpLastName,
             orgNihii = orgNihii,
             organizationType = organizationType,
-            annex1 = annex1,
-            annex2 = annex2,
+            prescription1 = attachments?.find { it.type == "prescription1" }?.data,
+            prescription2 = attachments?.find { it.type == "prescription2" }?.data,
             agreementStartDate = formatter.parseDateTime(agreementStartDate.toString()),
             agreementEndDate = formatter.parseDateTime(agreementEndDate.toString()),
             agreementType = agreementType,
-            numberOfSessionForAnnex1 = numberOfSessionForAnnex1,
-            numberOfSessionForAnnex2 = numberOfSessionForAnnex2,
+            numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
+            numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
             sctCode = sctCode,
             sctDisplay = sctDisplay,
-            attachments = attachments
+            attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
         )
     }
 
@@ -322,11 +317,9 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) patientIoMembership: String?,
         @RequestParam(required = false) orgNihii: String?,
         @RequestParam(required = false) organizationType: String?,
-        @RequestParam(required = false) annex1: String?,
-        @RequestParam(required = false) annex2: String?,
         @RequestParam(required = false) agreementType: String?,
-        @RequestParam(required = false) numberOfSessionForAnnex1: Float?,
-        @RequestParam(required = false) numberOfSessionForAnnex2: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription1: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription2: Float?,
         @RequestBody(required = false) attachments: List<Attachment>?
     ): AgreementResponse? {
         return eagreementService.askAgreement(
@@ -352,16 +345,16 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpLastName = hcpLastName,
             orgNihii = orgNihii,
             organizationType = organizationType,
-            annex1 = annex1,
-            annex2 = annex2,
+            prescription1 = attachments?.find { it.type == "prescription1" }?.data,
+            prescription2 = attachments?.find { it.type == "prescription2" }?.data,
             agreementStartDate = null,
             agreementEndDate = null,
             agreementType = agreementType,
-            numberOfSessionForAnnex1 = numberOfSessionForAnnex1,
-            numberOfSessionForAnnex2 = numberOfSessionForAnnex2,
+            numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
+            numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
             sctCode = sctCode,
             sctDisplay = sctDisplay,
-            attachments = attachments
+            attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
         )
     }
 
@@ -387,11 +380,9 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
         @RequestParam(required = false) patientIoMembership: String?,
         @RequestParam(required = false) orgNihii: String?,
         @RequestParam(required = false) organizationType: String?,
-        @RequestParam(required = false) annex1: String?,
-        @RequestParam(required = false) annex2: String?,
         @RequestParam(required = false) agreementType: String?,
-        @RequestParam(required = false) numberOfSessionForAnnex1: Float?,
-        @RequestParam(required = false) numberOfSessionForAnnex2: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription1: Float?,
+        @RequestParam(required = false) numberOfSessionForPrescription2: Float?,
         @RequestBody(required = false) attachments: List<Attachment>?
     ): AgreementResponse? {
         return eagreementService.askAgreement(
@@ -417,16 +408,16 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpLastName = hcpLastName,
             orgNihii = orgNihii,
             organizationType = organizationType,
-            annex1 = annex1,
-            annex2 = annex2,
+            prescription1 = attachments?.find { it.type == "prescription1" }?.data,
+            prescription2 = attachments?.find { it.type == "prescription2" }?.data,
             agreementStartDate = null,
             agreementEndDate = null,
             agreementType = agreementType,
-            numberOfSessionForAnnex1 = numberOfSessionForAnnex1,
-            numberOfSessionForAnnex2 = numberOfSessionForAnnex2,
+            numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
+            numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
             sctCode = sctCode,
             sctDisplay = sctDisplay,
-            attachments = attachments
+            attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
         )
     }
 }
