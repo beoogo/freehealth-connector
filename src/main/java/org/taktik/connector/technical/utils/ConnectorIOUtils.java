@@ -280,10 +280,6 @@ public final class ConnectorIOUtils {
       return convertStreamToString(getResourceAsStream(location));
    }
 
-   public static byte[] getResourceAsByteArray(String location) throws TechnicalConnectorException {
-      return getBytes(getResourceAsStream(location));
-   }
-
    public static InputStream getResourceAsStream(String location, boolean bootstrap) throws TechnicalConnectorException {
       if (location == null) {
          throw new TechnicalConnectorException(TechnicalConnectorExceptionValues.ERROR_INPUT_PARAMETER_NULL);
@@ -318,29 +314,6 @@ public final class ConnectorIOUtils {
 
          return stream;
       }
-   }
-
-   public static File getResourceAsFile(String location) throws TechnicalConnectorException {
-      InputStream in = null;
-      FileOutputStream out = null;
-
-      File var4;
-      try {
-         File tempFile = File.createTempFile("connector-io", ".tmp");
-         DeleteFileOnExitShutdownHook.deleteOnExit(tempFile);
-         tempFile.deleteOnExit();
-         out = new FileOutputStream(tempFile);
-         in = getResourceAsStream(location);
-         IOUtils.copy(in, out);
-         var4 = tempFile;
-      } catch (IOException var8) {
-         LOG.error(var8.getClass().getSimpleName() + ": " + var8.getMessage());
-         throw new TechnicalConnectorException(TechnicalConnectorExceptionValues.MALFORMED_URL, var8, location);
-      } finally {
-         closeQuietly(in, out);
-      }
-
-      return var4;
    }
 
    public static String getResourceFilePath(String location) throws TechnicalConnectorException {
@@ -432,10 +405,6 @@ public final class ConnectorIOUtils {
       }
 
       return result;
-   }
-
-   public static File createTempFile(String name) throws TechnicalConnectorException {
-      return createTempFile(name, true);
    }
 
    public static String getTempFileLocation(String name) throws TechnicalConnectorException {

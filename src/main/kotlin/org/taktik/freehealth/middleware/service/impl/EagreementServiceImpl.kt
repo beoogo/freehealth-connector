@@ -2,15 +2,6 @@ package org.taktik.freehealth.middleware.service.impl
 
 import be.cin.encrypted.BusinessContent
 import be.cin.encrypted.EncryptedKnownContent
-import be.cin.mycarenet.esb.common.v2.OrigineType
-import be.cin.nip.async.generic.Confirm
-import be.cin.nip.async.generic.Get
-import be.cin.nip.async.generic.MsgQuery
-import be.cin.nip.async.generic.Query
-import be.cin.types.v1.DetailType
-import be.cin.types.v1.DetailsType
-import be.cin.types.v1.FaultType
-import be.cin.types.v1.StringLangType
 import be.fgov.ehealth.agreement.protocol.v1.*
 import be.fgov.ehealth.agreement.protocol.v1.ObjectFactory
 import be.fgov.ehealth.etee.crypto.utils.KeyManager
@@ -23,25 +14,19 @@ import com.google.gson.JsonObject
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.lang.StringUtils
 import org.joda.time.DateTime
-import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
-import org.taktik.connector.business.agreement.exception.AgreementBusinessConnectorException
 import org.taktik.connector.business.domain.agreement.EAgreementResponse
-import org.taktik.connector.business.genericasync.service.impl.GenAsyncServiceImpl
 import org.taktik.connector.business.mycarenet.attest.domain.InputReference
 import org.taktik.connector.business.mycarenetcommons.mapper.v3.BlobMapper
 import org.taktik.connector.business.mycarenetdomaincommons.builders.BlobBuilderFactory
-import org.taktik.connector.business.mycarenetdomaincommons.mapper.DomainBlobMapper
 import org.taktik.connector.business.mycarenetdomaincommons.util.McnConfigUtil
 import org.taktik.connector.business.mycarenetdomaincommons.util.PropertyUtil
-import org.taktik.connector.business.mycarenetdomaincommons.util.WsAddressingUtil
 import org.taktik.connector.technical.config.ConfigFactory
 import org.taktik.connector.technical.exception.SoaErrorException
 import org.taktik.connector.technical.exception.TechnicalConnectorException
 import org.taktik.connector.technical.exception.TechnicalConnectorExceptionValues
-import org.taktik.connector.technical.handler.domain.WsAddressingHeader
 import org.taktik.connector.technical.idgenerator.IdGeneratorFactory
 import org.taktik.connector.technical.service.etee.Crypto
 import org.taktik.connector.technical.service.etee.CryptoFactory
@@ -51,31 +36,21 @@ import org.taktik.connector.technical.service.keydepot.impl.KeyDepotManagerImpl
 import org.taktik.connector.technical.service.sts.security.Credential
 import org.taktik.connector.technical.service.sts.security.impl.KeyStoreCredential
 import org.taktik.connector.technical.utils.CertificateParser
-import org.taktik.connector.technical.utils.ConnectorIOUtils
 import org.taktik.connector.technical.utils.ConnectorXmlUtils
 import org.taktik.connector.technical.utils.IdentifierType
 import org.taktik.connector.technical.utils.MarshallerHelper
 import org.taktik.freehealth.middleware.dao.User
-import org.taktik.freehealth.middleware.domain.eAgreement.EAgreementBatchResponse
-import org.taktik.freehealth.middleware.domain.eAgreement.EAgreementList
-import org.taktik.freehealth.middleware.domain.eAgreement.EAgreementMessage
-import org.taktik.freehealth.middleware.domain.memberdata.MdaStatus
 import org.taktik.freehealth.middleware.dto.mycarenet.CommonOutput
 import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetConversation
-import org.taktik.freehealth.middleware.dto.mycarenet.MycarenetError
 import org.taktik.freehealth.middleware.exception.MissingTokenException
-import org.taktik.freehealth.middleware.exception.UnauthorizedException
 import org.taktik.freehealth.middleware.service.EagreementService
 import org.taktik.freehealth.middleware.service.STSService
 import org.taktik.freehealth.middleware.web.controllers.EagreementController
-import org.taktik.icure.cin.saml.extensions.ResponseList
-import org.taktik.icure.cin.saml.oasis.names.tc.saml._2_0.assertion.Assertion
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
 import java.io.StringWriter
-import java.net.URI
 import java.util.*
 import java.util.function.Consumer
 import javax.xml.bind.JAXBContext
@@ -85,18 +60,15 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMResult
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import javax.xml.ws.soap.SOAPFaultException
 
 
 @Service
 class EagreementServiceImpl(private val stsService: STSService, private val keyDepotService: KeyDepotService) : EagreementService {
     private val freehealthAgreementService: org.taktik.connector.business.agreement.service.AgreementService = org.taktik.connector.business.agreement.service.impl.AgreementServiceImpl()
 
-    private val keyDepotManager = KeyDepotManagerImpl.getInstance(keyDepotService)
     private val config = ConfigFactory.getConfigValidator(emptyList())
-    private val genAsyncService = GenAsyncServiceImpl("mda")
 
-    val agreementServiceUtils: EagreementServiceUtilsImpl = EagreementServiceUtilsImpl();
+    val agreementServiceUtils: EagreementServiceUtilsImpl = EagreementServiceUtilsImpl()
 
     enum class RequestTypeEnum(val requestType: String) {
         ASK("claim-ask"),
@@ -113,21 +85,6 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
     }
 
     private val log = LoggerFactory.getLogger(this.javaClass)
-
-    private fun generateError(e: AgreementBusinessConnectorException, co: CommonOutput): EAgreementResponse {
-        val error = EAgreementResponse()
-        error.isAcknowledged = false
-        error.errors = Arrays.asList(MycarenetError(code = e.errorCode, msgFr = e.message, msgNl = e.message))
-        error.commonOutput = co
-        return error
-    }
-
-    private fun generateError(e: SoaErrorException): EAgreementResponse {
-        val error = EAgreementResponse()
-        error.isAcknowledged = false
-        error.errors = Arrays.asList(MycarenetError(code = e.errorCode, msgFr = e.message, msgNl = e.message))
-        return error
-    }
 
 
     override fun askAgreement(
@@ -180,7 +137,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         return extractEtk(credential)?.let {
             val requestBundleJSON = this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, prescriberNihii, prescriberFirstName, prescriberLastName, orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments, prescriptionDate) ?: throw IllegalArgumentException("Cannot load fhir")
 
-            var askAgreementRequest = AskAgreementRequest();
+            var askAgreementRequest = AskAgreementRequest()
             askAgreementRequest.apply {
                 val encryptedKnownContent = EncryptedKnownContent()
                 encryptedKnownContent.replyToEtk = it.encoded
@@ -235,14 +192,14 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                         careProvider = CareProviderType().apply {
                             nihii =
                                 NihiiType().apply {
-                                    quality = hcpQuality;
+                                    quality = hcpQuality
                                     value = ValueRefString().apply { value = hcpNihii }
                                 }
                             physicalPerson = IdType().apply {
                                 name = ValueRefString().apply { value = "$hcpFirstName $hcpLastName" }
                                 ssin = ValueRefString().apply { value = hcpSsin }
                                 nihii = NihiiType().apply {
-                                    quality = hcpQuality;
+                                    quality = hcpQuality
                                     value = ValueRefString().apply { value = hcpNihii }
                                 }
                             }
@@ -301,7 +258,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 }
                 res.content = responseXML.toByteArray(Charsets.UTF_8)
                 res.xades = xades
-                return res;
+                return res
             } catch (e: SoaErrorException) {
                 throw TechnicalConnectorException(TechnicalConnectorExceptionValues.ERROR_WS, e, e.message)
             }
@@ -421,14 +378,14 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                         careProvider = CareProviderType().apply {
                             nihii =
                                 NihiiType().apply {
-                                    quality = hcpQuality;
+                                    quality = hcpQuality
                                     value = ValueRefString().apply { value = hcpNihii }
                                 }
                             physicalPerson = IdType().apply {
                                 name = ValueRefString().apply { value = "$hcpFirstName $hcpLastName" }
                                 ssin = ValueRefString().apply { value = hcpSsin }
                                 nihii = NihiiType().apply {
-                                    quality = hcpQuality;
+                                    quality = hcpQuality
                                     value = ValueRefString().apply { value = hcpNihii }
                                 }
                             }
@@ -487,221 +444,13 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 }
                 res.content = responseXML.toByteArray(Charsets.UTF_8)
                 res.xades = xades
-                return res;
+                return res
             } catch (e: SoaErrorException) {
                 throw TechnicalConnectorException(TechnicalConnectorExceptionValues.ERROR_WS, e, e.message)
             }
 
         }
     }
-
-    override fun getMessages(
-        keystoreId: UUID,
-        tokenId: UUID,
-        passPhrase: String,
-        hcpNihii: String,
-        hcpSsin: String,
-        hcpFirstName: String,
-        hcpLastName: String,
-        hcpQuality: String
-    ): EAgreementList? {
-        val samlToken = stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
-            ?: throw MissingTokenException("Cannot obtain token for eAgreement asyn operations")
-        val keystore = stsService.getKeyStore(keystoreId, passPhrase)!!
-        val credential = KeyStoreCredential(keystoreId, keystore, "authentication", passPhrase, samlToken.quality)
-        val hokPrivateKeys = KeyManager.getDecryptionKeys(keystore, passPhrase.toCharArray())
-        val crypto = CryptoFactory.getCrypto(credential, hokPrivateKeys)
-
-        val getHeader = WsAddressingHeader(URI("urn:be:cin:nip:async:generic:get:query")).apply {
-            messageID = URI(IdGeneratorFactory.getIdGenerator("uuid").generateId())
-        }
-
-        val get = Get().apply {
-            msgQuery = MsgQuery().apply {
-                isInclude = true
-                max = 100
-                messageNames?.let { this.messageNames.addAll(it) }
-            }
-            tAckQuery = Query().apply {
-                isInclude = true
-                max = 100
-            }
-            origin = buildOriginType(hcpNihii, hcpFirstName, "physiotherapist", hcpSsin)
-        }
-
-        val response = genAsyncService.getRequest(samlToken, get, getHeader)
-        val listOfEagreementDecryptedResponseContent : ArrayList<String> = arrayListOf()
-
-        return try {
-            EAgreementList(
-                eAgreementMessageList = response.`return`.msgResponses?.map {
-                    var data: ByteArray? = if (it.detail.contentEncoding == "deflate") ConnectorIOUtils.decompress(DomainBlobMapper.mapToBlob(it.detail).content) else DomainBlobMapper.mapToBlob(it.detail).content
-                    val responseList = if (it.detail.contentEncryption == "encryptedForKnownRecipient") {
-                        val unsealedData = crypto.unseal(Crypto.SigningPolicySelector.WITHOUT_NON_REPUDIATION, data).contentAsByte
-                        val decryptedKnownContent = MarshallerHelper(EncryptedKnownContent::class.java, EncryptedKnownContent::class.java).toObject(unsealedData)
-                        MarshallerHelper(ResponseList::class.java, ResponseList::class.java).toObject(
-                            if (decryptedKnownContent.businessContent.contentEncoding == "deflate")
-                                ConnectorIOUtils.decompress(decryptedKnownContent.businessContent.value) else decryptedKnownContent.businessContent.value
-                        )
-                    } else {
-                        MarshallerHelper(ResponseList::class.java, ResponseList::class.java).toObject(data)
-                    }
-                    listOfEagreementDecryptedResponseContent.add(ConnectorXmlUtils.toString(responseList))
-                    EAgreementMessage(
-                        commonOutput = CommonOutput(
-                            inputReference = it.commonOutput.inputReference,
-                            outputReference = it.commonOutput.outputReference,
-                            nipReference = it.commonOutput.nipReference
-                        ),
-                            errors = null,
-                            genericErrors = null,
-                            reference = it.detail.reference,
-                            appliesTo = null,
-                            complete = null,
-                            io = null,
-                        eagreementResponse = responseList.responses.map {
-                            EAgreementBatchResponse(
-                                status = MdaStatus(
-                                    it.status.statusCode?.value,
-                                    it.status.statusCode?.statusCode?.value
-                                ),
-                                errors = it.status?.statusDetail?.anies?.map {
-                                    FaultType().apply {
-                                        faultCode = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "FaultCode").item(0)?.textContent
-                                        faultSource = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "FaultSource").item(0)?.textContent
-                                        message = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "Message").item(0)?.let {
-                                            StringLangType().apply {
-                                                value = it.textContent
-                                                lang = it.attributes.getNamedItem("lang")?.textContent
-                                            }
-                                        }
-
-                                        it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "Detail").let {
-                                            if (it.length > 0) {
-                                                details = DetailsType()
-                                            }
-                                            for (i in 0 until it.length) {
-                                                details.details.add(DetailType().apply {
-                                                    it.item(i).let {
-                                                        detailCode = (it as Element).getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "DetailCode").item(0)?.textContent
-                                                        detailSource = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "DetailSource").item(0)?.textContent
-                                                        location = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "Location").item(0)?.textContent
-                                                        message = it.getElementsByTagNameWithOrWithoutNs("urn:be:cin:types:v1", "Message").item(0)?.let {
-                                                            StringLangType().apply {
-                                                                value = it.textContent
-                                                                lang = it.attributes.getNamedItem("lang")?.textContent
-                                                            }
-                                                        }
-                                                    }
-                                                })
-                                            }
-                                        }
-                                    }
-                                },
-                                issueInstant = it.issueInstant,
-                                inResponseTo = it.inResponseTo,
-                                issuer = it.issuer?.value,
-                                responseId = it.id,
-                                assertions = it.anies.map{
-                                    MarshallerHelper(Assertion::class.java, Assertion::class.java).toObject(it)
-                                }
-                            )
-                        }
-                    )
-                },
-                mycarenetConversation = MycarenetConversation().apply {
-                    this.transactionRequest = MarshallerHelper(Get::class.java, Get::class.java).toXMLByteArray(get).toString(kotlin.text.Charsets.UTF_8)
-                    this.transactionResponse = MarshallerHelper(be.cin.nip.async.generic.GetResponse::class.java, be.cin.nip.async.generic.GetResponse::class.java).toXMLByteArray(response).toString(
-                        Charsets.UTF_8)
-                    response?.soapResponse?.writeTo(this.soapResponseOutputStream())
-                    soapRequest = MarshallerHelper(Get::class.java, Get::class.java).toXMLByteArray(get).toString(Charsets.UTF_8)
-                    this.decryptedResponseContent = listOfEagreementDecryptedResponseContent
-                },
-                date = null,
-                genericErrors = null
-            )
-        }catch (e:SOAPFaultException){
-            return EAgreementList(
-                mycarenetConversation = MycarenetConversation().apply {
-                    this.transactionRequest = MarshallerHelper(Get::class.java, Get::class.java).toXMLByteArray(get).toString(kotlin.text.Charsets.UTF_8)
-                    this.transactionResponse = MarshallerHelper(be.cin.nip.async.generic.GetResponse::class.java, be.cin.nip.async.generic.GetResponse::class.java).toXMLByteArray(response).toString(
-                        Charsets.UTF_8)
-                    response?.soapResponse?.writeTo(this.soapResponseOutputStream())
-                    soapRequest = MarshallerHelper(Get::class.java, Get::class.java).toXMLByteArray(get).toString(Charsets.UTF_8)
-                    this.decryptedResponseContent = listOfEagreementDecryptedResponseContent
-                },
-                date = null,
-                eAgreementMessageList =  null,
-                genericErrors = listOf(FaultType().apply {
-                    faultSource = e.message
-                    faultCode = e.fault?.faultCode
-                })
-            )
-        }
-    }
-
-    override fun confirmMessages(
-        keystoreId: UUID,
-        tokenId: UUID,
-        passPhrase: String,
-        hcpQuality: String?,
-        hcpNihii: String,
-        hcpSsin: String?,
-        hcpFirstName: String,
-        hcpLastName: String,
-        eAgreementMessagesReference: List<String>
-    ): Boolean? {
-        if (eAgreementMessagesReference.isEmpty()) {
-            return true
-        }
-
-        val samlToken =
-            stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
-                ?: throw MissingTokenException("Cannot obtain token for eAgreement operations")
-
-        val confirmheader = WsAddressingUtil.createHeader("", "urn:be:cin:nip:async:generic:confirm:hash")
-
-        val confirm = Confirm()
-        confirm.origin = buildOriginType(hcpNihii, hcpFirstName, hcpQuality, hcpSsin)
-        confirm.msgRefValues.addAll(eAgreementMessagesReference)
-
-        genAsyncService.confirmRequest(samlToken, confirm, confirmheader)
-
-        return true
-    }
-
-    private fun buildOriginType(hcpNihii: String, hcpName: String, hcpQuality: String?, hcpSsin: String?): OrigineType =
-        OrigineType().apply {
-            val principal = SecurityContextHolder.getContext().authentication?.principal as? User
-            `package` = be.cin.mycarenet.esb.common.v2.PackageType().apply {
-                name = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = config.getProperty("genericasync.dmg.package.name") }
-                license = be.cin.mycarenet.esb.common.v2.LicenseType().apply {
-                    username = principal?.mcnLicense ?: throw UnauthorizedException("No MCN license found")
-                    password = principal.mcnPassword ?: throw UnauthorizedException("No MCN license found")
-                }
-            }
-            careProvider = be.cin.mycarenet.esb.common.v2.CareProviderType().apply {
-                this.nihii = be.cin.mycarenet.esb.common.v2.NihiiType().apply {
-                    quality = hcpQuality?: "medicalhouse"
-                    value = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = hcpNihii }
-                }
-
-                physicalPerson = be.cin.mycarenet.esb.common.v2.IdType().apply {
-                    nihii = be.cin.mycarenet.esb.common.v2.NihiiType().apply {
-                        quality = hcpQuality;
-                        value = be.cin.mycarenet.esb.common.v2.ValueRefString().apply { value = hcpNihii.padEnd(11, '0') }
-                    }
-
-                    hcpSsin?.let {
-                        ssin = be.cin.mycarenet.esb.common.v2.ValueRefString().apply {
-                            value = hcpSsin;
-                        }
-                    }
-                }
-
-
-            }
-        }
 
     fun transformElement(element: Element, doc: Document) {
         val nodeList = element.childNodes
@@ -820,29 +569,6 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         }
     }
 
-    private fun extractErrors(jsonObject: JSONObject): Set<MycarenetError> {
-        val errors = mutableSetOf<MycarenetError>()
-        val entries = jsonObject.getJSONObject("Bundle").getJSONArray("entry")
-
-        for (i in 0 until entries.length()) {
-            val entry = entries.getJSONObject(i)
-            val resource = entry.getJSONObject("resource")
-
-            if (resource.has("OperationOutcome")) {
-                val operationOutcome = resource.getJSONObject("OperationOutcome")
-                if (operationOutcome.has("issue")) {
-                    val issue = operationOutcome.getJSONObject("issue")
-                    if (issue.has("severity") && issue.getJSONObject("severity").getString("value") == "error") {
-                        val errorCode = issue.getJSONObject("details").getJSONObject("coding").getJSONObject("code").getString("value")
-                        errors.add(MycarenetError(code = errorCode))
-                    }
-                }
-            }
-        }
-
-        return errors
-    }
-
     private fun handleEncryption(
         request: EncryptedKnownContent,
         credential: Credential,
@@ -899,10 +625,6 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         }
 
         return sb.toString()
-    }
-
-    private fun Element.getElementsByTagNameWithOrWithoutNs(ns: String, name: String): NodeList {
-        return this.getElementsByTagNameNS(ns, name).let { if (it.length > 0) it else this.getElementsByTagName(name) }
     }
 }
 

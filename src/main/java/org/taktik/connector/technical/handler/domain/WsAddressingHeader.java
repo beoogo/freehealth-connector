@@ -73,13 +73,4 @@ public class WsAddressingHeader {
    public String getMustUnderstand() {
       return this.mustUnderstand;
    }
-
-   public void setMustUnderstand(boolean mustUnderstand) {
-      if (mustUnderstand) {
-         this.mustUnderstand = "1";
-      } else {
-         this.mustUnderstand = "0";
-      }
-
-   }
 }
