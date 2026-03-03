@@ -139,7 +139,9 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         agreementEndDate: DateTime?,
         agreementType: String?,
         numberOfSessionForAnnex1: Float?,
-        numberOfSessionForAnnex2: Float?
+        numberOfSessionForAnnex2: Float?,
+        sctCode: String?,
+        sctDisplay: String?
     ): AgreementResponse? {
         val samlToken =
             stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
@@ -175,7 +177,10 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 agreementEndDate,
                 agreementType,
                 numberOfSessionForAnnex1,
-                numberOfSessionForAnnex2
+                numberOfSessionForAnnex2,
+                sctCode,
+                sctDisplay
+
             )
 
             var askAgreementRequest = AskAgreementRequest();
@@ -330,6 +335,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         hcpSsin: String,
         hcpFirstName: String,
         hcpLastName: String,
+        subTypeCode: String,
         orgNihii: String?,
         organizationType: String?,
         agreementStartDate: DateTime?,
@@ -360,6 +366,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 hcpNihii,
                 hcpFirstName,
                 hcpLastName,
+                subTypeCode,
                 orgNihii,
                 organizationType,
                 agreementStartDate,
@@ -610,14 +617,16 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         agreementEndDate: DateTime?,
         agreementType: String?,
         numberOfSessionForAnnex1: Float?,
-        numberOfSessionForAnnex2: Float?
+        numberOfSessionForAnnex2: Float?,
+        sctCode: String?,
+        sctDisplay: String?
     ): JsonObject?{
         when (requestType) {
-            RequestTypeEnum.ASK -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.ARGUE -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.CANCEL -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.COMPLETE_AGREEMENT -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.EXTEND -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate) ?: throw IllegalArgumentException("Cannot load fhir")
+            RequestTypeEnum.ASK -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null) ?: throw IllegalArgumentException("Cannot load fhir")
+            RequestTypeEnum.ARGUE -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null) ?: throw IllegalArgumentException("Cannot load fhir")
+            RequestTypeEnum.CANCEL -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null) ?: throw IllegalArgumentException("Cannot load fhir")
+            RequestTypeEnum.COMPLETE_AGREEMENT -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null) ?: throw IllegalArgumentException("Cannot load fhir")
+            RequestTypeEnum.EXTEND -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, annex1, annex2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForAnnex1, numberOfSessionForAnnex2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null) ?: throw IllegalArgumentException("Cannot load fhir")
             else -> throw IllegalArgumentException("Request type not supported")
         }
     }
@@ -636,13 +645,14 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         hcpNihii: String,
         hcpFirstName: String,
         hcpLastName: String,
+        subTypeCode: String,
         orgNihii: String?,
         organizationType: String?,
         agreementStartDate: DateTime?,
         agreementEndDate: DateTime?,
         agreementType: String?
     ): JsonObject?{
-        return this.agreementServiceUtils.getBundleJSON(requestType, "Parameters/Parameters1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, null, null, null, orgNihii, organizationType, null, null, agreementStartDate, agreementEndDate, agreementType, null, null, insuranceRef, null, null) ?: throw IllegalArgumentException("Cannot load fhir")
+        return this.agreementServiceUtils.getBundleJSON(requestType, "Parameters/Parameters1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, null, null, null, orgNihii, organizationType, null, null, agreementStartDate, agreementEndDate, agreementType, null, null, insuranceRef, null, null, null, null, subTypeCode) ?: throw IllegalArgumentException("Cannot load fhir")
     }
 
     private fun extractEtk(cred: KeyStoreCredential): EncryptionToken? {
