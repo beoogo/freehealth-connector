@@ -123,12 +123,13 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 reference = "ServiceRequest/ServiceRequest1"
             }
             insurance = listOf(getInsurance(requestType, insuranceRef, "use of mandatory insurance coverage, no further details provided here."))
-            supportingInfo = listOf(
-                getSupportingInfo(1, "attachment", "physiotherapist-report", null, null, "QW5uZXhlIGlubGluZSwgYmFzZTY0ZWQ=", "nom/description de l'annexe", "application/pdf"),
-                getSupportingInfo(2, "info", null, null, "additional Information", null, null, null)
-                //getSupportingInfo(3, "info", null, "ServiceRequest/ServiceRequest2", null, null, null, null)
-            )
-
+            if (requestType == EagreementServiceImpl.RequestTypeEnum.ASK) {
+                supportingInfo = listOf(
+                    getSupportingInfo(1, "attachment", "physiotherapist-report", null, null, "QW5uZXhlIGlubGluZSwgYmFzZTY0ZWQ=", "nom/description de l'annexe", "application/pdf"),
+                    getSupportingInfo(2, "info", null, null, "additional Information", null, null, null)
+                    //getSupportingInfo(3, "info", null, "ServiceRequest/ServiceRequest2", null, null, null, null)
+                )
+            }
             item = listOf(getServicedDateItem(requestType, pathologyStartDate!!, pathologyCode, 1))
         }
     }
@@ -719,7 +720,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         }*/
 
         //Claim 1
-        if (requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) {
+        if (requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.CANCEL || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) {
             val claim = this.getClaim(
                 requestType,
                 claimId = "1",
