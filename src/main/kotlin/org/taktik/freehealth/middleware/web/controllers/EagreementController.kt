@@ -168,7 +168,6 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             hcpFirstName = hcpFirstName,
             hcpLastName = hcpLastName,
             subTypeCode = subTypeCode,
-            insuranceRef = insuranceRef,
             orgNihii = orgNihii,
             organizationType = organizationType,
             agreementStartDate = if (agreementStartDate != null) formatter.parseDateTime(agreementStartDate.toString()) else null,

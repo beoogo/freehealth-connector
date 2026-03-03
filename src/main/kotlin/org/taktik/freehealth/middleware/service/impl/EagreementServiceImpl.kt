@@ -17,8 +17,6 @@ import be.fgov.ehealth.etee.crypto.utils.KeyManager
 import be.fgov.ehealth.mycarenet.commons.core.v3.*
 import be.fgov.ehealth.technicalconnector.signature.AdvancedElectronicSignatureEnumeration
 import be.fgov.ehealth.technicalconnector.signature.SignatureBuilderFactory
-import be.fgov.ehealth.technicalconnector.signature.domain.SignatureVerificationError
-import be.fgov.ehealth.technicalconnector.signature.domain.SignatureVerificationResult
 import be.fgov.ehealth.technicalconnector.signature.transformers.EncapsulationTransformer
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -324,7 +322,6 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         patientSsin: String?,
         patientIo: String?,
         patientIoMembership: String?,
-        insuranceRef: String?,
         hcpNihii: String,
         hcpSsin: String,
         hcpFirstName: String,
@@ -782,45 +779,6 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         return ""
     }
 
-
-    fun createRequestBundle(
-        requestType: RequestTypeEnum,
-        messageEventSystem: MessageEventSystemEnum,
-        messageEventCode: String,
-        patientFirstName: String,
-        patientLastName: String,
-        patientGender: String,
-        patientSsin: String?,
-        patientIo: String?,
-        patientIoMembership: String?,
-        pathologyStartDate: DateTime?,
-        pathologyCode: String?,
-        insuranceRef: String?,
-        hcpNihii: String,
-        hcpFirstName: String,
-        hcpLastName: String,
-        orgNihii: String?,
-        organizationType: String?,
-        prescription1: String?,
-        prescription2: String?,
-        agreementStartDate: DateTime?,
-        agreementEndDate: DateTime?,
-        agreementType: String?,
-        numberOfSessionForPrescription1: Float?,
-        numberOfSessionForPrescription2: Float?,
-        sctCode: String?,
-        sctDisplay: String?,
-        attachments: List<EagreementController.Attachment>?
-    ): JsonObject?{
-        when (requestType) {
-            RequestTypeEnum.ASK -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.ARGUE -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.CANCEL -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.COMPLETE_AGREEMENT -> return return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments) ?: throw IllegalArgumentException("Cannot load fhir")
-            RequestTypeEnum.EXTEND -> return this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, "14375992004", "Robin", "Hormaux", orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments) ?: throw IllegalArgumentException("Cannot load fhir")
-            else -> throw IllegalArgumentException("Request type not supported")
-        }
-    }
 
     fun createConsultAgreementBundle(
         requestType: RequestTypeEnum,
