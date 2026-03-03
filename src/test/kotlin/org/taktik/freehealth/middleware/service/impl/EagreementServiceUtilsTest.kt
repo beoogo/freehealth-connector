@@ -198,9 +198,8 @@ class EagreementServiceUtilsTest {
     @Test
     fun getParameters() {
 
-        val parameterId = "123"
-        val parameterNames = arrayOf("resourceType", "patient", "use", "subType", "preAuthPeriod")
-        val agreementTypes = "someAgreementType"
+        val parameterId = "1"
+        val agreementTypes = "physiotherapy"
         val startDate = DateTime.now()
         val endDate = startDate.plusDays(7)
         val patientFirstName = "John"
@@ -212,7 +211,6 @@ class EagreementServiceUtilsTest {
 
         val parameters = agreementServiceUtils.getParameters(
             parameterId,
-            parameterNames,
             agreementTypes,
             startDate,
             endDate,
@@ -374,6 +372,25 @@ class EagreementServiceUtilsTest {
 
     @Test
     fun getMessageHeader() {
+        val claim = agreementServiceUtils.getClaim(
+            "1",
+            "active",
+            "physiotherapy-fb",
+            DateTime.now(),
+            "InsuranceRef123",
+            "PathologyCode123",
+            DateTime.now().plusDays(1),
+            "PractitionerRole/PractitionerRole1"
+        )
+
+        val messageHeader = agreementServiceUtils.getMessageHeader(
+            "Claim/Claim1",
+            "https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/message-events",
+            "claim-ask",
+            "PractitionerRole/PractitionerRole1"
+        )
+
+        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(messageHeader));
 
     }
 
@@ -391,7 +408,7 @@ class EagreementServiceUtilsTest {
         )
         val bundle = agreementServiceUtils.getBundleJSON(
             EagreementServiceImpl.RequestTypeEnum.ASK,
-            claim,
+            "Claim/Claim1",
             "",
             "",
             "Wathelet",
@@ -411,8 +428,8 @@ class EagreementServiceUtilsTest {
             null,
             null,
             null,
-            1f,
-            1f
+            DateTime.now(),
+            "ues"
             );
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(bundle))
     }
