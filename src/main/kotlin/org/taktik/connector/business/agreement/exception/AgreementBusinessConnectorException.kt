@@ -1,13 +1,13 @@
-package org.taktik.connector.business.agreement.exception;
+package org.taktik.connector.business.agreement.exception
 
-import org.taktik.connector.technical.exception.ConnectorException;
+import org.taktik.connector.technical.exception.ConnectorException
+import java.text.MessageFormat
 
-import java.text.MessageFormat;
-
-public class AgreementBusinessConnectorException extends ConnectorException {
-   private static final long serialVersionUID = 1L;
-
-   public AgreementBusinessConnectorException(AgreementBusinessConnectorExceptionValues errorCodeValue, Object... params) {
-      super(MessageFormat.format(errorCodeValue.getMessage(), params), errorCodeValue.getErrorCode());
-   }
+class AgreementBusinessConnectorException(
+    errorCodeValue: AgreementBusinessConnectorExceptionValues,
+    vararg params: Any?
+) : ConnectorException(MessageFormat.format(errorCodeValue.message, *params), errorCodeValue.errorCode) {
+    companion object {
+        private const val serialVersionUID = 1L
+    }
 }
