@@ -389,7 +389,7 @@ class EagreementServiceUtilsTest {
             DateTime.now().plusDays(1),
             "PractitionerRole/PractitionerRole1"
         )
-        val bundle = agreementServiceUtils.getBundle(
+        val bundle = agreementServiceUtils.getBundleJSON(
             EagreementServiceImpl.RequestTypeEnum.ASK,
             claim,
             "",
