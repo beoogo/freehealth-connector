@@ -327,6 +327,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         patientSsin: String?,
         patientIo: String?,
         patientIoMembership: String?,
+        insuranceRef: String?,
         hcpNihii: String,
         hcpSsin: String,
         hcpFirstName: String,

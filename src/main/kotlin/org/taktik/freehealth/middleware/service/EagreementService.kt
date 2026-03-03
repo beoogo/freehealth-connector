@@ -65,6 +65,7 @@ interface EagreementService {
         patientSsin: String?,
         patientIo: String?,
         patientIoMembership: String?,
+        insuranceRef: String?,
         hcpNihii: String,
         hcpSsin: String,
         hcpFirstName: String,
