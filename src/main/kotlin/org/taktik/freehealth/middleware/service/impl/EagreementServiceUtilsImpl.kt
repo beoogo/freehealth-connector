@@ -116,7 +116,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             status = claimStatus
             subType = getCodableConcept("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/agreement-types", subTypeCode)
             use = "preauthorization"
-            billablePeriod = getBillablePeriod(agreementStartDate!!)
+            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) billablePeriod = getBillablePeriod(agreementStartDate!!)
             created = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))
             enterer = Reference().apply { reference = "PractitionerRole/PractitionerRole1"}
             referral = Reference().apply {
@@ -130,7 +130,6 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                     //getSupportingInfo(3, "info", null, "ServiceRequest/ServiceRequest2", null, null, null, null)
                 )
             }
-            item = listOf(getServicedDateItem(requestType, pathologyStartDate!!, pathologyCode, 1))
         }
     }
 
