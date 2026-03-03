@@ -78,7 +78,6 @@ interface EagreementService {
         hcpFirstName: String,
         hcpLastName: String,
         subTypeCode: String,
-        insuranceRef: String?,
         orgNihii: String?,
         organizationType: String?,
         agreementStartDate: DateTime?,
