@@ -15,12 +15,13 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 import org.taktik.connector.technical.utils.ConnectorXmlUtils
 import org.taktik.connector.technical.utils.MarshallerHelper
+import org.taktik.freehealth.middleware.service.AgreementServiceUtils
 import org.taktik.icure.fhir.entities.r4.practitionerrole.PractitionerRole
 import org.taktik.icure.fhir.entities.r4.reference.Reference
 
 class AgreementServiceUtilsTest {
 
-    val agreementServiceUtils = AgreementServiceUtils()
+    val agreementServiceUtils = AgreementServiceUtilsImpl()
     @Test
     fun getPractitionerRole() {
 
@@ -70,7 +71,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getCodableConcept() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val codeableConcept = agreementServiceUtils.getCodableConcept("https://example.com/system", "exampleCode")
 
@@ -92,7 +92,6 @@ class AgreementServiceUtilsTest {
     @Test
     fun getClaim() {
         // Créer une instance de la classe AgreementServiceUtils
-        val agreementServiceUtils = AgreementServiceUtils()
 
         // Appeler la fonction que vous souhaitez tester
         val claim = agreementServiceUtils.getClaim(
@@ -119,7 +118,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getSupportingInfo() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val supportingInfo1 = agreementServiceUtils.getSupportingInfo(1, "attachment", "functional-report", null, null, "QW5uZXhlIGlubGluZSwgYmFzZTY0ZWQ=", "nom/description de l'annexe", "application/pdf")
         val supportingInfo2 = agreementServiceUtils.getSupportingInfo(2, "info", null, null, "additional Information", null, null, null)
@@ -147,7 +145,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getPatient() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val patientWithSsin = agreementServiceUtils.getPatient("Jean", "Dupont", "male", "73031805784", null, null)
         val patientWithoutSsin = agreementServiceUtils.getPatient("Jean", "Dupont", "male", null, "109", "45613414615SDE")
@@ -166,7 +163,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getServiceRequest() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val serviceRequest = agreementServiceUtils.getServiceRequest(
             "1",
@@ -193,7 +189,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getContained() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val containedList = agreementServiceUtils.getContained("pdfData", "123")
 
@@ -211,7 +206,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getParameters() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val parameterId = "123"
         val parameterNames = arrayOf("resourceType", "patient", "use", "subType", "preAuthPeriod")
@@ -248,7 +242,6 @@ class AgreementServiceUtilsTest {
 
     @Test
     fun getParameter() {
-        val agreementServiceUtils = AgreementServiceUtils()
 
         val parameterName = "subType"
         val agreementTypes = "someAgreementType"
