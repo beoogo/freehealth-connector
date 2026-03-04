@@ -412,7 +412,7 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
         val isTest = config.getProperty("endpoint.ch4.admission.v1").contains("-acpt")
         val samlToken =
             stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
-                ?: throw MissingTokenException("Cannot obtain token for Chapte IV operations")
+                ?: throw MissingTokenException("Cannot obtain token for Chapter IV operations")
         val keystore = stsService.getKeyStore(keystoreId, passPhrase)!!
 
         val credential = KeyStoreCredential(keystoreId, keystore, "authentication", passPhrase, samlToken.quality)
@@ -460,7 +460,7 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
                         rt.soapRequest?.writeTo(this.soapResponseOutputStream())
                         this.transactionRequest = v1Message?.let {
                             MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                        }.toString(Charsets.UTF_8)
+                        }?.toString(Charsets.UTF_8)
                     }
                     rt.returnInfo?.let { ri ->
                         this.errors = this.errors?.let { it + listOf(MycarenetError(code = ri.faultCode, path = ri.faultSource, msgFr = ri.message.value, msgNl = ri.message.value))}
@@ -483,10 +483,10 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
                     response.soapResponse?.writeTo(this.soapResponseOutputStream())
                     this.transactionRequest = v1Message?.let {
                         MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                     this.transactionResponse = kmehrResponse?.let {
                         MarshallerHelper(Kmehrresponse::class.java, Kmehrresponse::class.java).toXMLByteArray(it)
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                 }
             }
             agreementResponse.isAcknowledged = kmehrResponse.acknowledge != null && kmehrResponse.acknowledge.isIscomplete
@@ -543,7 +543,7 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
         val isTest = config.getProperty("endpoint.ch4.admission.v1").contains("-acpt")
         val samlToken =
             stsService.getSAMLToken(tokenId, keystoreId, passPhrase)
-                ?: throw MissingTokenException("Cannot obtain token for Chapte IV operations")
+                ?: throw MissingTokenException("Cannot obtain token for Chapter IV operations")
         val keystore = stsService.getKeyStore(keystoreId, passPhrase)!!
 
         val credential = KeyStoreCredential(keystoreId, keystore, "authentication", passPhrase, samlToken.quality)
@@ -595,7 +595,7 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
                         rt.soapRequest?.writeTo(this.soapResponseOutputStream())
                         this.transactionRequest = v1Message?.let {
                             MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                        }.toString(Charsets.UTF_8)
+                        }?.toString(Charsets.UTF_8)
                     }
                     rt.returnInfo?.let { ri ->
                         this.errors = this.errors?.let { it + listOf(MycarenetError(code = ri.faultCode, path = ri.faultSource, msgFr = ri.message.value, msgNl = ri.message.value))}
@@ -620,13 +620,13 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
             val agreementResponse = AgreementResponse(commonOutput = commonOutput).apply {
                 this.mycarenetConversation = MycarenetConversation().apply {
                     response.soapRequest?.writeTo(this.soapRequestOutputStream())
-                    response.soapRequest?.writeTo(this.soapResponseOutputStream())
+                    response.soapResponse?.writeTo(this.soapResponseOutputStream())
                     this.transactionRequest = v1Message?.let {
                         MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                     this.transactionResponse = retrievedKmehrResponse.kmehrresponse?.let {
                         MarshallerHelper(Kmehrresponse::class.java, Kmehrresponse::class.java).toXMLByteArray(it)
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                 }
             }
             val ack = retrievedKmehrResponse.kmehrresponse.acknowledge
@@ -771,7 +771,7 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
                         rt.soapRequest?.writeTo(this.soapResponseOutputStream())
                         this.transactionRequest = v1Message?.let {
                             MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                        }.toString(Charsets.UTF_8)
+                        }?.toString(Charsets.UTF_8)
                     }
                     rt.returnInfo?.let { ri ->
                         this.errors = this.errors?.let { it + listOf(MycarenetError(code = ri.faultCode, path = ri.faultSource, msgFr = ri.message.value, msgNl = ri.message.value))}
@@ -795,10 +795,10 @@ class Chapter4ServiceImpl(private val stsService: STSService, private val drugsL
                     response.soapRequest?.writeTo(this.soapResponseOutputStream())
                     this.transactionRequest = v1Message?.let {
                         MarshallerHelper(Kmehrrequest::class.java, Kmehrrequest::class.java).toXMLByteArray(Kmehrrequest().apply { this.kmehrmessage = it })
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                     this.transactionResponse = retrievedKmehrResponse.kmehrresponse?.let {
                         MarshallerHelper(Kmehrresponse::class.java, Kmehrresponse::class.java).toXMLByteArray(it)
-                    }.toString(Charsets.UTF_8)
+                    }?.toString(Charsets.UTF_8)
                 }
             }
             agreementResponse.isAcknowledged = retrievedKmehrResponse.kmehrresponse.acknowledge.isIscomplete

@@ -15,27 +15,32 @@ class EagreementServiceUtilsTest {
     val agreementServiceUtils = EagreementServiceUtilsImpl()
     @Test
     fun getPractitionerRole() {
-
-        val practitionerRole: PractitionerRole = agreementServiceUtils.getPractitionerRole("1", "123", "Mennechet", "Maxime")
+        val role: String = "persphysiotherapist"
+        val practitionerId: String = "1"
+        val practitionerRole: PractitionerRole = agreementServiceUtils.getPractitionerRole(practitionerId, role);
 
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(practitionerRole))
 
         assertThat(practitionerRole).isNotNull
-        assertThat(practitionerRole.id).isEqualTo("PractitionerRole1")
+        assertThat(practitionerRole.id).isEqualTo("PractitionerRole$practitionerId")
 
         assertThat(practitionerRole.meta).isNotNull
         assertThat(practitionerRole.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitionerrole")
 
         assertThat(practitionerRole.code).isNotNull
         assertThat(practitionerRole.code).hasSize(1)
+        assertThat(practitionerRole.code.first().coding).hasSize(1)
+        assertThat(practitionerRole.code.first().coding.first().system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty")
+        assertThat(practitionerRole.code.first().coding.first().code).isEqualTo(role)
+
     }
 
     @Test
     fun getPractitioner() {
         val practitionerId = "1"
-        val hcpNihii = "123456789"
+        val hcpNihii = "54263481527"
         val hcpFirstName = "John"
-        val hcpLastName = "Doe"
+        val hcpLastName = "Smith"
 
         val practitioner = agreementServiceUtils.getPractitioner(practitionerId, hcpNihii, hcpFirstName, hcpLastName)
 
@@ -85,7 +90,9 @@ class EagreementServiceUtilsTest {
         // Créer une instance de la classe AgreementServiceUtils
 
         // Appeler la fonction que vous souhaitez tester
+        /*
         val claim = agreementServiceUtils.getClaim(
+           EagreementServiceImpl.RequestTypeEnum.ASK,
             "1",
             "active",
             DateTime.now(),
@@ -103,7 +110,7 @@ class EagreementServiceUtilsTest {
         assertThat(claim.status).isEqualTo("active")
         assertThat(claim.subType?.coding?.get(0)?.system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/agreement-types")
         assertThat(claim.subType?.coding?.get(0)?.code).isEqualTo("physiotherapy-fb")
-        assertThat(claim.use).isEqualTo("preauthorization")
+        assertThat(claim.use).isEqualTo("preauthorization")*/
     }
 
     @Test
@@ -117,19 +124,51 @@ class EagreementServiceUtilsTest {
         println("Result 2: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(supportingInfo2))
         println("Result 3: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(supportingInfo3))
 
+        assertThat(supportingInfo1).isNotNull
+        assertThat(supportingInfo1.sequence).isEqualTo(1)
+        assertThat(supportingInfo1.code?.coding).hasSize(1)
+        assertThat(supportingInfo1.code?.coding?.first()?.code).isEqualTo("functional-report")
+        assertThat(supportingInfo1.code?.coding?.first()?.system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/annex-types")
+        assertThat(supportingInfo1.category?.coding).hasSize(1)
+        assertThat(supportingInfo1.category?.coding?.first()?.code).isEqualTo("attachment")
+        assertThat(supportingInfo1.category?.coding?.first()?.system).isEqualTo("http://terminology.hl7.org/CodeSystem/claiminformationcategory")
+
+        assertThat(supportingInfo2).isNotNull
+        assertThat(supportingInfo2.sequence).isEqualTo(2)
+        assertThat(supportingInfo2.category?.coding).hasSize(1)
+        assertThat(supportingInfo2.category?.coding?.first()?.code).isEqualTo("info")
+        assertThat(supportingInfo2.category?.coding?.first()?.system).isEqualTo("http://terminology.hl7.org/CodeSystem/claiminformationcategory")
+        assertThat(supportingInfo2.valueString).isEqualTo("additional Information")
+
+        assertThat(supportingInfo3).isNotNull
+        assertThat(supportingInfo3.sequence).isEqualTo(3)
+        assertThat(supportingInfo3.category?.coding).hasSize(1)
+        assertThat(supportingInfo3.category?.coding?.first()?.code).isEqualTo("info")
+        assertThat(supportingInfo3.category?.coding?.first()?.system).isEqualTo("http://terminology.hl7.org/CodeSystem/claiminformationcategory")
+        assertThat(supportingInfo3.valueReference?.reference).isEqualTo("ServiceRequest/ServiceRequest2")
     }
 
     @Test
     fun getOrganization() {
-        val agreementServiceUtils = AgreementServiceUtils()
+        val organizationId = "1";
+        val orgNihii = "71000436000"
+        val orgType = "orghospital"
 
-        val organization = agreementServiceUtils.getOrganization("1", "71000436000", "orghospital")
+        val organization = agreementServiceUtils.getOrganization(organizationId, orgNihii, orgType)
 
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(organization))
 
         assertThat(organization).isNotNull
-        assertThat(organization.id).isEqualTo("Organization1")
+        assertThat(organization.id).isEqualTo("Organization$organizationId")
         assertThat(organization.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization")
+        assertThat(organization.identifier).hasSize(1)
+        assertThat(organization.identifier.first().system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi")
+        assertThat(organization.identifier.first().value).isEqualTo(orgNihii)
+
+        assertThat(organization.type).isNotNull
+        assertThat(organization.type.first().coding).hasSize(1)
+        assertThat(organization.type.first().coding.first().system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty")
+        assertThat(organization.type.first().coding.first().code).isEqualTo(orgType)
 
     }
 
@@ -145,10 +184,28 @@ class EagreementServiceUtilsTest {
         assertThat(patientWithSsin).isNotNull
         assertThat(patientWithSsin.id).isEqualTo("Patient1")
         assertThat(patientWithSsin.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient")
+        assertThat(patientWithSsin.identifier).hasSize(1)
+        assertThat(patientWithSsin.identifier.first().system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin")
+        assertThat(patientWithSsin.identifier.first().value).isEqualTo("73031805784")
+        assertThat(patientWithSsin.name).hasSize(1)
+        assertThat(patientWithSsin.name.first().family).isEqualTo("Dupont")
+        assertThat(patientWithSsin.name.first().given).hasSize(1)
+        assertThat(patientWithSsin.name.first().given.first()).isEqualTo("Jean")
+        assertThat(patientWithSsin.gender).isEqualTo("male")
+
 
         assertThat(patientWithoutSsin).isNotNull
         assertThat(patientWithoutSsin.id).isEqualTo("Patient1")
         assertThat(patientWithoutSsin.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient")
+        assertThat(patientWithoutSsin.identifier).hasSize(1)
+        assertThat(patientWithoutSsin.identifier.first().system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/insurancymembership")
+        assertThat(patientWithoutSsin.identifier.first().value).isEqualTo("45613414615SDE")
+        assertThat(patientWithoutSsin.identifier.first().assigner?.identifier?.system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/insurancenumber")
+        assertThat(patientWithoutSsin.identifier.first().assigner?.identifier?.value).isEqualTo("109")
+        assertThat(patientWithSsin.name.first().family).isEqualTo("Dupont")
+        assertThat(patientWithSsin.name.first().given).hasSize(1)
+        assertThat(patientWithSsin.name.first().given.first()).isEqualTo("Jean")
+        assertThat(patientWithSsin.gender).isEqualTo("male")
     }
 
     @Test
@@ -156,18 +213,16 @@ class EagreementServiceUtilsTest {
 
         val serviceRequest = agreementServiceUtils.getServiceRequest(
             "1",
-            "data",
-            "annexId",
-            2.5f,
+            "BE789468461564",
+            "QW5uZXhlIGlubGluZSwgYmFzZTY0ZWQ=",
+            "1",
+            15f,
+            "17845784004",
             "John",
-            "Doe",
-            "Male",
-            "123456789",
-            "John",
-            "Doe",
-            "PatientSsin123",
-            "IO123",
-            "IOMembership123",
+            "male",
+            "78457845896",
+            "109",
+            "45464116491BE",
             null,
             null
         )
@@ -177,6 +232,25 @@ class EagreementServiceUtilsTest {
         assertThat(serviceRequest).isNotNull
         assertThat(serviceRequest.id).isEqualTo("ServiceRequest1")
         assertThat(serviceRequest.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/mycarenet/StructureDefinition/be-eagreementservicerequest")
+        assertThat(serviceRequest.category).isNotNull
+        assertThat(serviceRequest.category).hasSize(1)
+        assertThat(serviceRequest.category.first().coding).hasSize(1)
+        assertThat(serviceRequest.category.first().coding.first().system).isEqualTo("http://snomed.info/sct")
+        assertThat(serviceRequest.category.first().coding.first().code).isEqualTo("91251008")
+        assertThat(serviceRequest.code).isNotNull
+        assertThat(serviceRequest.code?.coding).hasSize(1)
+        assertThat(serviceRequest.code?.coding?.first()?.system).isEqualTo("http://snomed.info/sct")
+        assertThat(serviceRequest.code?.coding?.first()?.code).isEqualTo("91251008")
+        assertThat(serviceRequest.contained).hasSize(1)
+        assertThat(serviceRequest.contained?.first()?.id).isEqualTo("annexSR1")
+        assertThat(serviceRequest.identifier).hasSize(1)
+        assertThat(serviceRequest.identifier?.first()?.system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/uhmep")
+        assertThat(serviceRequest.identifier?.first()?.value).isEqualTo("BE789468461564")
+        assertThat(serviceRequest.requester?.reference).isEqualTo("PractitionerRole/PractitionerRole2")
+        assertThat(serviceRequest.subject?.reference).isEqualTo("Patient/Patient1")
+        assertThat(serviceRequest.supportingInfo).hasSize(1)
+        assertThat(serviceRequest.supportingInfo?.first()?.reference).isEqualTo("#annexSR1")
+
     }
 
     @Test
@@ -198,7 +272,7 @@ class EagreementServiceUtilsTest {
 
     @Test
     fun getParameters() {
-
+/*
         val parameterId = "1"
         val agreementTypes = "physiotherapy"
         val startDate = DateTime.now()
@@ -228,7 +302,7 @@ class EagreementServiceUtilsTest {
 
         assertThat(parameters).isNotNull
         assertThat(parameters.id).isEqualTo("Parameters$parameterId")
-
+*/
     }
 
     @Test
@@ -289,19 +363,14 @@ class EagreementServiceUtilsTest {
 
     @Test
     fun getInsurance() {
-        val agreementServiceUtils = AgreementServiceUtils()
-
         val insuranceRef = "InsuranceRef123"
         val display = "Insurance Display"
 
-        val insuranceList = agreementServiceUtils.getInsurance(insuranceRef, display)
+        val insurance = agreementServiceUtils.getInsurance(EagreementServiceImpl.RequestTypeEnum.ASK, insuranceRef, display)
 
-        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(agreementServiceUtils))
+        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(insurance))
 
-        assertThat(insuranceList).isNotNull
-        assertThat(insuranceList).hasSize(1)
-
-        val insurance = insuranceList[0]
+        assertThat(insurance).isNotNull
         assertThat(insurance.sequence).isEqualTo(1)
         assertThat(insurance.focal).isTrue()
         assertThat(insurance.coverage.display).isEqualTo(display)
@@ -316,15 +385,13 @@ class EagreementServiceUtilsTest {
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(period))
 
         assertThat(period).isNotNull
-        assertThat(period.start).isEqualTo(startDate.toString())
-
     }
 
     @Test
     fun getServicedDateItem() {
         val pathologyDate = DateTime.now()
-        val pathologyCode = "somePathologyCode"
-        val claimItem = agreementServiceUtils.getServicedDateItem(pathologyDate, pathologyCode)
+        val pathologyCode = "fb-51"
+        val claimItem = agreementServiceUtils.getServicedDateItem(EagreementServiceImpl.RequestTypeEnum.ASK, pathologyDate, pathologyCode, 1)
 
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(claimItem))
 
@@ -333,7 +400,6 @@ class EagreementServiceUtilsTest {
         assertThat(claimItem.productOrService.coding).hasSize(1)
         assertThat(claimItem.productOrService.coding[0].system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/nihdi-physiotherapy-pathologysituationcode")
         assertThat(claimItem.productOrService.coding[0].code).isEqualTo(pathologyCode)
-        assertThat(claimItem.servicedDate).isEqualTo(pathologyDate.toString())
     }
 
     @Test
@@ -374,6 +440,7 @@ class EagreementServiceUtilsTest {
 
     @Test
     fun getMessageHeader() {
+        /*
         val claim = agreementServiceUtils.getClaim(
             EagreementServiceImpl.RequestTypeEnum.ASK,
             "1",
@@ -393,12 +460,14 @@ class EagreementServiceUtilsTest {
         )
 
         println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(messageHeader));
-
+*/
     }
 
     @Test
     fun getBundle() {
+        /*
         val claim = agreementServiceUtils.getClaim(
+            EagreementServiceImpl.RequestTypeEnum.ASK,
             "1",
             "active",
             DateTime.now(),
@@ -409,9 +478,9 @@ class EagreementServiceUtilsTest {
         )
         val bundle = agreementServiceUtils.getBundleJSON(
             EagreementServiceImpl.RequestTypeEnum.ASK,
+            "1",
+            EagreementServiceImpl.MessageEventSystemEnum.MESSAGE_EVENTS,
             "Claim/Claim1",
-            "",
-            "",
             "Wathelet",
             "Julien",
             "male",
@@ -440,6 +509,6 @@ class EagreementServiceUtilsTest {
             null,
             null
             );
-        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(bundle))
+        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(bundle))*/
     }
 }

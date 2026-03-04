@@ -6,9 +6,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -23,21 +23,13 @@ import org.taktik.freehealth.middleware.dto.efact.*
 import org.taktik.freehealth.middleware.dto.etarif.TarificationConsultationResult
 import org.taktik.freehealth.middleware.dto.genins.InsurabilityInfoDto
 import org.taktik.freehealth.middleware.format.efact.BelgianInsuranceInvoicingFormatReader
-import org.taktik.freehealth.utils.FuzzyValues
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.StringReader
-import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.util.Calendar
-import java.util.Date
-import java.util.HashMap
-import java.util.UUID
+import java.util.*
 import kotlin.math.roundToInt
 
 
