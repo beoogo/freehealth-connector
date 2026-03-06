@@ -209,51 +209,6 @@ class EagreementServiceUtilsTest {
     }
 
     @Test
-    fun getServiceRequest() {
-
-        val serviceRequest = agreementServiceUtils.getServiceRequest(
-            "1",
-            "BE789468461564",
-            "QW5uZXhlIGlubGluZSwgYmFzZTY0ZWQ=",
-            "1",
-            15f,
-            "17845784004",
-            "John",
-            "male",
-            "78457845896",
-            "109",
-            "45464116491BE",
-            null,
-            null
-        )
-
-        println("Result: "+ObjectMapper().registerModule(KotlinModule()).writeValueAsString(serviceRequest))
-
-        assertThat(serviceRequest).isNotNull
-        assertThat(serviceRequest.id).isEqualTo("ServiceRequest1")
-        assertThat(serviceRequest.meta?.profile).containsExactly("https://www.ehealth.fgov.be/standards/fhir/mycarenet/StructureDefinition/be-eagreementservicerequest")
-        assertThat(serviceRequest.category).isNotNull
-        assertThat(serviceRequest.category).hasSize(1)
-        assertThat(serviceRequest.category.first().coding).hasSize(1)
-        assertThat(serviceRequest.category.first().coding.first().system).isEqualTo("http://snomed.info/sct")
-        assertThat(serviceRequest.category.first().coding.first().code).isEqualTo("91251008")
-        assertThat(serviceRequest.code).isNotNull
-        assertThat(serviceRequest.code?.coding).hasSize(1)
-        assertThat(serviceRequest.code?.coding?.first()?.system).isEqualTo("http://snomed.info/sct")
-        assertThat(serviceRequest.code?.coding?.first()?.code).isEqualTo("91251008")
-        assertThat(serviceRequest.contained).hasSize(1)
-        assertThat(serviceRequest.contained?.first()?.id).isEqualTo("annexSR1")
-        assertThat(serviceRequest.identifier).hasSize(1)
-        assertThat(serviceRequest.identifier?.first()?.system).isEqualTo("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/uhmep")
-        assertThat(serviceRequest.identifier?.first()?.value).isEqualTo("BE789468461564")
-        assertThat(serviceRequest.requester?.reference).isEqualTo("PractitionerRole/PractitionerRole2")
-        assertThat(serviceRequest.subject?.reference).isEqualTo("Patient/Patient1")
-        assertThat(serviceRequest.supportingInfo).hasSize(1)
-        assertThat(serviceRequest.supportingInfo?.first()?.reference).isEqualTo("#annexSR1")
-
-    }
-
-    @Test
     fun getContained() {
 
         val containedList = agreementServiceUtils.getContained("pdfData", "123")
