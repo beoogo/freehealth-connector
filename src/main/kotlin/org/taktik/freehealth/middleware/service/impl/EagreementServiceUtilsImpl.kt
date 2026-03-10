@@ -279,8 +279,8 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         )
     }
 
-    override fun getServiceRequest(serviceRequestId: String, prescriptionId: String, data: String, annexId: String, quantity: Float, patientFirstName: String, patientLastName: String, gender: String, prescriptionDate: DateTime, patientSsin: String?, io: String?, ioMembership: String?, sctCode: String?, sctDisplay: String?): ServiceRequest {
-        val patient = getPatient(patientFirstName!!, patientLastName!!, gender!!, patientSsin, io, ioMembership)
+    override fun getServiceRequest(serviceRequestId: String, prescriptionId: String?, data: String?, annexId: String, quantity: Float?, patientFirstName: String, patientLastName: String, gender: String, prescriptionDate: DateTime?, patientSsin: String?, io: String?, ioMembership: String?, sctCode: String?, sctDisplay: String?): ServiceRequest {
+        val patient = getPatient(patientFirstName, patientLastName, gender, patientSsin, io, ioMembership)
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
         return ServiceRequest(subject = Reference().apply { patient }).apply {
             id = "ServiceRequest$serviceRequestId"
@@ -318,7 +318,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             subject = Reference().apply {
                 reference = "Patient/Patient1"
             }
-            authoredOn = formatter.print(prescriptionDate)
+            authoredOn = prescriptionDate?.let { formatter.print(it) }
             requester = Reference().apply {
                 reference = "PractitionerRole/PractitionerRole2"
             }
@@ -739,13 +739,13 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             val serviceRequest1 = JsonObject()
             serviceRequest1.addProperty("fullUrl" , "urn:uuid:" + uuidGenerator.generateId())
             val prescriptionDateNonNull = prescriptionDate ?: DateTime.now()
-            serviceRequest1.add("resource", JsonParser().parse(mapper.writeValueAsString(getServiceRequest("1", "", prescription1!!, "1", numberOfSessionForPrescription1!!, patientFirstName, patientLastName, patientGender, prescriptionDateNonNull, patientSsin, patientIo, patientIoMembership, sctCode, sctDisplay))).asJsonObject)
+            serviceRequest1.add("resource", JsonParser().parse(mapper.writeValueAsString(getServiceRequest("1", "", prescription1, "1", numberOfSessionForPrescription1, patientFirstName, patientLastName, patientGender, prescriptionDateNonNull, patientSsin, patientIo, patientIoMembership, sctCode, sctDisplay))).asJsonObject)
             serviceRequest1.getAsJsonObject("resource").getAsJsonObject("ServiceRequest").add("contained", JsonParser().parse(mapper.writeValueAsString( Binary(
                 contentType = "application/pdf",
                 data = prescription1,
                 id = "annexSR1"
             ))).asJsonObject)
-            serviceRequest1.getAsJsonObject("resource").getAsJsonObject("ServiceRequest").getAsJsonObject("quantityQuantity").addProperty("value", numberOfSessionForPrescription1.toInt())
+            serviceRequest1.getAsJsonObject("resource").getAsJsonObject("ServiceRequest").getAsJsonObject("quantityQuantity").addProperty("value", numberOfSessionForPrescription1?.toInt())
             gson.getAsJsonObject("Bundle").getAsJsonArray("entry").add(serviceRequest1)
         }
 

@@ -95,7 +95,7 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             patientSsin = patientSsin,
             patientIo = patientIo,
             patientIoMembership = patientIoMembership,
-            pathologyStartDate = formatter.parseDateTime(pathologyStartDate.toString()),
+            pathologyStartDate = pathologyStartDate?.let { formatter.parseDateTime(it.toString()) },
             pathologyCode = pathologyCode,
             insuranceRef = null,
             hcpNihii = hcpNihii,
@@ -115,7 +115,7 @@ class EagreementController(val eagreementService: EagreementService, val mapper:
             numberOfSessionForPrescription1 = numberOfSessionForPrescription1,
             numberOfSessionForPrescription2 = numberOfSessionForPrescription2,
             sctCode = sctCode,
-            prescriptionDate = formatter.parseDateTime(prescriptionDate.toString()),
+            prescriptionDate = prescriptionDate?.let { formatter.parseDateTime(it.toString()) },
             sctDisplay = sctDisplay,
             attachments = attachments?.filter { it.type != "prescription1" && it.type != "prescription2" }
         )
