@@ -121,7 +121,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         numberOfSessionForPrescription1: Float?,
         numberOfSessionForPrescription2: Float?,
         sctCode: String?,
-        prescriptionDate: DateTime,
+        prescriptionDate: DateTime?,
         sctDisplay: String?,
         attachments: List<EagreementController.Attachment>?
     ): EAgreementResponse? {
@@ -135,7 +135,40 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         val detailId = "_" + IdGeneratorFactory.getIdGenerator("uuid").generateId()
 
         return extractEtk(credential)?.let {
-            val requestBundleJSON = this.agreementServiceUtils.getBundleJSON(requestType, "Claim/Claim1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, prescriberNihii, prescriberFirstName, prescriberLastName, orgNihii, organizationType, prescription1, prescription2, agreementStartDate, agreementEndDate, agreementType, numberOfSessionForPrescription1, numberOfSessionForPrescription2, insuranceRef, pathologyCode, pathologyStartDate, sctCode, sctDisplay, null, attachments, prescriptionDate) ?: throw IllegalArgumentException("Cannot load fhir")
+            val requestBundleJSON = this.agreementServiceUtils.getBundleJSON(
+                requestType,
+                "Claim/Claim1",
+                messageEventSystem,
+                messageEventCode,
+                patientFirstName,
+                patientLastName,
+                patientGender,
+                patientSsin,
+                patientIo,
+                patientIoMembership,
+                hcpNihii,
+                hcpFirstName,
+                hcpLastName,
+                prescriberNihii,
+                prescriberFirstName,
+                prescriberLastName,
+                orgNihii,
+                organizationType,
+                prescription1,
+                prescription2,
+                agreementStartDate,
+                agreementEndDate,
+                agreementType,
+                numberOfSessionForPrescription1,
+                numberOfSessionForPrescription2,
+                insuranceRef,
+                pathologyCode,
+                pathologyStartDate,
+                sctCode,
+                sctDisplay,
+                null,
+                attachments,
+                prescriptionDate) ?: throw IllegalArgumentException("Cannot load fhir")
 
             var askAgreementRequest = AskAgreementRequest()
             askAgreementRequest.apply {
