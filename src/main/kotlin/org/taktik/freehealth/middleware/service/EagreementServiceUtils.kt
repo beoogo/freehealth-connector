@@ -97,6 +97,7 @@ interface EagreementServiceUtils {
         patientSsin: String?,
         patientIo: String?,
         patientIoMembership: String?,
+        hcpQuality: String,
         hcpNihii: String,
         hcpFirstName: String,
         hcpLastName: String,

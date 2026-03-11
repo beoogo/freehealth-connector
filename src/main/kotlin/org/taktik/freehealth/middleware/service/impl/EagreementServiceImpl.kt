@@ -148,6 +148,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 patientSsin,
                 patientIo,
                 patientIoMembership,
+                hcpQuality,
                 hcpNihii,
                 hcpFirstName,
                 hcpLastName,
@@ -348,6 +349,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
                 patientIo,
                 patientIoMembership,
                 insuranceRef,
+                hcpQuality,
                 hcpNihii,
                 hcpFirstName,
                 hcpLastName,
@@ -580,6 +582,7 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         patientIo: String?,
         patientIoMembership: String?,
         insuranceRef: String?,
+        hcpQuality: String,
         hcpNihii: String,
         hcpFirstName: String,
         hcpLastName: String,
@@ -590,7 +593,42 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
         agreementEndDate: DateTime?,
         agreementType: String
     ): JsonObject?{
-        return this.agreementServiceUtils.getBundleJSON(requestType, "Parameters/Parameters1", messageEventSystem, messageEventCode, patientFirstName, patientLastName, patientGender, patientSsin, patientIo, patientIoMembership, hcpNihii, hcpFirstName, hcpLastName, null, null, null, orgNihii, organizationType, null, null, agreementStartDate, agreementEndDate, agreementType, null, null, insuranceRef, null, null, null, null, subTypeCode, attachments = null, prescriptionDate = null) ?: throw IllegalArgumentException("Cannot load fhir")
+        return this.agreementServiceUtils.getBundleJSON(
+            requestType,
+            "Parameters/Parameters1",
+            messageEventSystem,
+            messageEventCode,
+            patientFirstName,
+            patientLastName,
+            patientGender,
+            patientSsin,
+            patientIo,
+            patientIoMembership,
+            hcpQuality,
+            hcpNihii,
+            hcpFirstName,
+            hcpLastName,
+            null,
+            null,
+            null,
+            orgNihii,
+            organizationType,
+            null,
+            null,
+            agreementStartDate,
+            agreementEndDate,
+            agreementType,
+            null,
+            null,
+            insuranceRef,
+            null,
+            null,
+            null,
+            null,
+            subTypeCode,
+            attachments = null,
+            prescriptionDate = null
+        ) ?: throw IllegalArgumentException("Cannot load fhir")
     }
 
     private fun extractEtk(cred: KeyStoreCredential): EncryptionToken? {
