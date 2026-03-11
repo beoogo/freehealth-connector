@@ -146,10 +146,12 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             status = "active"
             subType = getCodableConcept(CodingSystemEnum.AGREEMENT_TYPE.codingSystem, subTypeCode)
             use = "preauthorization"
-            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) billablePeriod = getBillablePeriod(agreementStartDate!!)
+            val isAskRequest = requestType == EagreementServiceImpl.RequestTypeEnum.ASK
+            val isExtendRequest = requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND
+            if((isAskRequest || isExtendRequest) && agreementStartDate != null) billablePeriod = getBillablePeriod(agreementStartDate!!)
             created = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX"))
             enterer = Reference().apply { reference = "PractitionerRole/PractitionerRole1"}
-            if (requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.COMPLETE_AGREEMENT || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) {
+            if (isAskRequest || requestType == EagreementServiceImpl.RequestTypeEnum.COMPLETE_AGREEMENT || isExtendRequest) {
                 referral = Reference().apply {
                     reference = "ServiceRequest/ServiceRequest1"
                 }
@@ -168,7 +170,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 supportingInfo = supportingInfoList
             }
             insurance = listOf(getInsurance(requestType, insuranceRef, "use of mandatory insurance coverage, no further details provided here."))
-            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK || requestType == EagreementServiceImpl.RequestTypeEnum.EXTEND) item = listOf(getServicedDateItem(requestType, pathologyStartDate!!, pathologyCode, 1))
+            if(isAskRequest || isExtendRequest) item = listOf(getServicedDateItem(requestType, pathologyStartDate!!, pathologyCode, 1))
         }
     }
 
