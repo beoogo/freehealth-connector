@@ -62,6 +62,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         INSURANCY_MEMBERSHIP("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/insurancymembership"),
         SSIN("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin"),
         SCT("http://snomed.info/sct"),
+        NIHDI_E_AGREEMENT("https://www.ehealth.fgov.be/standards/fhir/mycarenet/ValueSet/eagreementproductorservice  "),
         UHMEP("https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/uhmep"),
         NIHDI_PHYSIO_PATHO_SITUATION_CODE("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/nihdi-physiotherapy-pathologysituationcode"),
         AGREEMENT_TYPE("https://www.ehealth.fgov.be/standards/fhir/mycarenet/CodeSystem/agreement-types"),
@@ -431,7 +432,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             productOrService = CodeableConcept(
                 coding = listOf(
                     Coding(
-                        system = CodingSystemEnum.NIHDI_PHYSIO_PATHO_SITUATION_CODE.codingSystem,
+                        system = CodingSystemEnum.NIHDI_E_AGREEMENT.codingSystem,
                         code = sctCode
                     )
                 )
