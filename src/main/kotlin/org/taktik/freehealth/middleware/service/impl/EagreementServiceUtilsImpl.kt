@@ -128,6 +128,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         subTypeCode: String,
         agreementStartDate: DateTime?,
         insuranceRef: String?,
+        sctCode: String?,
         pathologyCode: String?,
         pathologyStartDate: DateTime?,
         provider: String,
@@ -170,7 +171,8 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 supportingInfo = supportingInfoList
             }
             insurance = listOf(getInsurance(requestType, insuranceRef, "use of mandatory insurance coverage, no further details provided here."))
-            if(isAskRequest || isExtendRequest) item = listOf(getServicedDateItem(requestType, agreementStartDate!!, subTypeCode, 1))
+            if(isAskRequest || isExtendRequest)
+                item = listOf(getServicedDateItem(requestType, agreementStartDate!!, sctCode, 1))
         }
     }
 
@@ -422,7 +424,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         )
     }
 
-    override fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, pathologyDate: DateTime?, pathologyCode: String?, sequenceNumber: Int): ClaimItem {
+    override fun getServicedDateItem(requestType: EagreementServiceImpl.RequestTypeEnum, startDate: DateTime?, sctCode: String?, sequenceNumber: Int): ClaimItem {
         val formatter = DateTimeFormat.forPattern("yyyy-MM-dd")
         return ClaimItem(
             sequence = sequenceNumber,
@@ -430,12 +432,12 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 coding = listOf(
                     Coding(
                         system = CodingSystemEnum.NIHDI_PHYSIO_PATHO_SITUATION_CODE.codingSystem,
-                        code = pathologyCode
+                        code = sctCode
                     )
                 )
             )
         ).apply {
-            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK && pathologyDate != null) servicedDate = formatter.print(pathologyDate)
+            if(requestType == EagreementServiceImpl.RequestTypeEnum.ASK && startDate != null) servicedDate = formatter.print(startDate)
         }
     }
 
@@ -759,6 +761,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 subTypeCode = agreementType,
                 agreementStartDate = agreementStartDate,
                 insuranceRef = insuranceRef,
+                sctCode = sctCode,
                 pathologyCode = pathologyCode,
                 pathologyStartDate = pathologyStartDate,
                 provider = "PractitionerRole/PractitionerRole1",

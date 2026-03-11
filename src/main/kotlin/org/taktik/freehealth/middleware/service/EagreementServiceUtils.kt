@@ -32,6 +32,7 @@ interface EagreementServiceUtils {
         subTypeCode: String,
         agreementStartDate: DateTime?,
         insuranceRef: String?,
+        sctCode: String?,
         pathologyCode: String?,
         pathologyStartDate: DateTime?,
         providerType: String,
