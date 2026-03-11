@@ -170,7 +170,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 supportingInfo = supportingInfoList
             }
             insurance = listOf(getInsurance(requestType, insuranceRef, "use of mandatory insurance coverage, no further details provided here."))
-            if(isAskRequest || isExtendRequest) item = listOf(getServicedDateItem(requestType, pathologyStartDate!!, pathologyCode, 1))
+            if(isAskRequest || isExtendRequest) item = listOf(getServicedDateItem(requestType, agreementStartDate!!, subTypeCode, 1))
         }
     }
 
