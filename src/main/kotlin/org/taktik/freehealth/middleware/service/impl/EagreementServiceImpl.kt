@@ -535,7 +535,9 @@ class EagreementServiceImpl(private val stsService: STSService, private val keyD
 
     private fun convertElement(jsonElement: JsonElement, elementName: String): String? {
         // Cas de base : si l'élément est une primitive ou null, retourner sa représentation en chaîne
-        if (jsonElement.isJsonPrimitive || jsonElement.isJsonNull) {
+        if (jsonElement.isJsonNull) {
+            return String.format("<%s />", elementName)
+        } else if (jsonElement.isJsonPrimitive) {
             return String.format("<%s>%s</%s>", elementName, jsonElement.asString, elementName)
         } else if (jsonElement.isJsonObject) {
             val elementBuilder = java.lang.StringBuilder()
