@@ -555,6 +555,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         patientSsin: String?,
         patientIo: String?,
         patientIoMembership: String?,
+        hcpQuality: String,
         hcpNihii: String,
         hcpFirstName: String,
         hcpLastName: String,
@@ -688,7 +689,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                     mapper.writeValueAsString(
                         getPractitionerRole(
                             "1",
-                            "persphysiotherapist"
+                            hcpQuality
                         )
                     )
                 ).asJsonObject
@@ -701,7 +702,14 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
             practitionerRole2.addProperty("fullUrl", "urn:uuid:" + uuidGenerator.generateId())
             practitionerRole2.add(
                 "resource",
-                JsonParser().parse(mapper.writeValueAsString(getPractitionerRole("2", "persphysician"))).asJsonObject
+                JsonParser().parse(
+                    mapper.writeValueAsString(
+                        getPractitionerRole(
+                            "2",
+                            "persphysician"
+                        )
+                    )
+                ).asJsonObject
             )
             gson.getAsJsonObject("Bundle").getAsJsonArray("entry").add(practitionerRole2)
         }
