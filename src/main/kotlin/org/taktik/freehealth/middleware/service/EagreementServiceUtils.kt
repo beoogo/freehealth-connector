@@ -35,7 +35,6 @@ interface EagreementServiceUtils {
         sctCode: String?,
         pathologyCode: String?,
         pathologyStartDate: DateTime?,
-        providerType: String,
         attachments: List<EagreementController.Attachment>?
     ): Claim?
 

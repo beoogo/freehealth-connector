@@ -132,18 +132,17 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
         sctCode: String?,
         pathologyCode: String?,
         pathologyStartDate: DateTime?,
-        provider: String,
         attachments: List<EagreementController.Attachment>?
     ): Claim {
         return Claim(
             patient = Reference().apply { reference = "Patient/Patient1" },
             priority = getCodableConcept(CodingSystemEnum.PROCESS_PRIORITY.codingSystem, "stat"),
-            provider = Reference().apply { reference = provider },
+            provider = Reference().apply { reference = "Organization/Organization1" },
             type = getCodableConcept(CodingSystemEnum.CLAIM_TYPE.codingSystem, "professional")
         ).apply {
             id = "Claim$claimId"
             meta = Meta(
-                profile = listOf(MetaProfileEnum.BE_AGREEMENT_CLAIM_KINE.metaProfile)
+                profile = listOf(MetaProfileEnum.BE_AGREEMENTDEMAND.metaProfile)
             )
             status = "active"
             subType = getCodableConcept(CodingSystemEnum.AGREEMENT_TYPE.codingSystem, subTypeCode)
@@ -540,7 +539,7 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 }
             )
             sender = Reference().apply {
-                reference = "PractitionerRole/PractitionerRole1" //todo organization or praticioner
+                reference = "Organization/Organization1"
             }
         }
     }
@@ -773,7 +772,6 @@ class EagreementServiceUtilsImpl(): EagreementServiceUtils {
                 sctCode = sctCode,
                 pathologyCode = pathologyCode,
                 pathologyStartDate = pathologyStartDate,
-                provider = "PractitionerRole/PractitionerRole1",
                 attachments = attachments
             )
             val parameter = JsonObject()
